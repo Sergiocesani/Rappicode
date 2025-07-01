@@ -1,17 +1,17 @@
 export function renderBarcode(code) {
-  code = String(code).trim(); // Aseguramos string limpio
+  code = String(code).trim(); // Asegura tipo string y sin espacios
 
   let format;
-
   if (/^\d{13}$/.test(code)) {
     format = "EAN13";
   } else if (/^\d{8}$/.test(code)) {
     format = "EAN8";
+  } else if (/^\d+$/.test(code)) {
+    format = "CODE128"; // Para cualquier otro numérico
   } else {
-    format = "CODE128"; // ⚠️ cualquier otro caso, va como CODE128
+    alert("❌ Este EAN no se puede renderizar como código de barras.");
+    return;
   }
-
-  console.log(`🔧 Código: ${code} | Formato: ${format}`); // Debug
 
   try {
     JsBarcode("#barcode", code, {
@@ -22,10 +22,11 @@ export function renderBarcode(code) {
       displayValue: true,
     });
   } catch (error) {
-    console.error("🚫 Error generando el código de barras:", error.message);
-    alert("🚫 Código inválido para el formato seleccionado.");
+    console.error("❌ Error al renderizar el código de barras:", error);
+    alert("❌ Este EAN no se puede renderizar como código de barras.");
   }
 }
+
 
 
 
