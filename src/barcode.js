@@ -1,24 +1,19 @@
-import JsBarcode from 'jsbarcode';
+export function renderBarcode(code) {
+  let format = "CODE128";
 
-/**
- * Verifica si el EAN es válido antes de intentar renderizar
- * @param {string} ean - Código EAN a renderizar
- */
-export function renderBarcode(ean) {
-  // Verificación básica
-  if (!/^\d{13}$/.test(ean)) {
-    console.warn(`❌ EAN inválido: "${ean}"`);
-    alert('❌ Este producto no tiene un código EAN13 válido para generar código de barras.');
-    return;
-  }
+  if (code.length === 13) format = "EAN13";
+  else if (code.length === 8) format = "EAN8";
 
-  // Renderizamos con JsBarcode
-  JsBarcode('#barcode', ean, {
-    format: 'ean13',
-    lineColor: '#fff',
-    background: '#000',
+  JsBarcode("#barcode", code, {
+    format: format,
+    lineColor: "#f60",
     width: 2,
-    height: 100,
-    displayValue: true
+    height: 80,
+    displayValue: true,
   });
 }
+
+
+
+
+

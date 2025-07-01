@@ -5,73 +5,102 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
 body {
-  background-color: #ffffff; /* fondo oscuro */
-  color: #000000;            /* texto blanco */
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Inter', sans-serif;
+  background-color: #fff;
+  color: #111;
+  line-height: 1.5;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  padding: 1rem;
 }
 
 /* Contenedor principal */
 .container {
   width: 100%;
   max-width: 400px;
-  padding: 20px;
+  background-color: #ff4d4f; /* rojo Rappi */
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: #fff;
   text-align: center;
 }
 
 /* Título */
-h1 {
+.container h1 {
   font-size: 1.8rem;
-  margin-bottom: 20px;
-  color: #ff5000; /* naranja rappiturbo */
+  margin-bottom: 1.5rem;
 }
 
-/* Input de búsqueda */
+/* Input */
 input#eanInput {
   width: 100%;
-  padding: 12px;
+  padding: 0.75rem;
   font-size: 1.2rem;
+  border: none;
+  border-radius: 0.5rem;
   text-align: center;
-  border: 2px solid #ff5000;
-  border-radius: 8px;
-  background-color: #1a1a1a;
-  color: #fff;
+  margin-bottom: 1rem;
   outline: none;
-  margin-bottom: 30px;
 }
 
-/* Resultado */
-#result {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-#skuName {
+/* Botón */
+button#generateBtn {
+  width: 100%;
+  padding: 0.75rem;
   font-size: 1.2rem;
   font-weight: bold;
-  color: #fff;
+  color: #ff4d4f;
+  background-color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
-#fullEan {
+button#generateBtn:hover {
+  background-color: #f2f2f2;
+}
+
+/* Resultados */
+#result {
+  margin-top: 2rem;
+}
+
+#result p {
+  margin: 0.5rem 0;
   font-size: 1rem;
-  letter-spacing: 2px;
-  color: #aaa;
 }
 
-/* SVG del código de barras */
 #barcode {
-  width: 100%;
-  max-width: 320px;
-  height: 140px;
+  margin: 1rem auto;
 }
 
-/* Ocultar */
+/* Ocultar secciones */
 .hidden {
   display: none;
+}
+
+/* Mobile-friendly */
+@media (max-width: 480px) {
+  .container {
+    padding: 1.5rem 1rem;
+  }
+
+  .container h1 {
+    font-size: 1.5rem;
+  }
+
+  input,
+  button {
+    font-size: 1rem;
+  }
 }
