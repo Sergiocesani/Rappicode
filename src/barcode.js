@@ -1,4 +1,7 @@
 export function renderBarcode(code) {
+  // Limpiar código (eliminar espacios)
+  code = code.trim();
+
   let format = "CODE128";
 
   if (code.length === 13) format = "EAN13";
