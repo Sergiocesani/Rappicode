@@ -12,8 +12,8 @@ html {
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #fff;
-  color: #111;
+  background-color: #000000;
+  color: #e68e00;
   line-height: 1.5;
   min-height: 100vh;
   display: flex;
