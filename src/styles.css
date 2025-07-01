@@ -1,0 +1,77 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #ffffff; /* fondo oscuro */
+  color: #000000;            /* texto blanco */
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Contenedor principal */
+.container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Título */
+h1 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #ff5000; /* naranja rappiturbo */
+}
+
+/* Input de búsqueda */
+input#eanInput {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.2rem;
+  text-align: center;
+  border: 2px solid #ff5000;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  color: #fff;
+  outline: none;
+  margin-bottom: 30px;
+}
+
+/* Resultado */
+#result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+#skuName {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+#fullEan {
+  font-size: 1rem;
+  letter-spacing: 2px;
+  color: #aaa;
+}
+
+/* SVG del código de barras */
+#barcode {
+  width: 100%;
+  max-width: 320px;
+  height: 140px;
+}
+
+/* Ocultar */
+.hidden {
+  display: none;
+}
