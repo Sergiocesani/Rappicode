@@ -5,7 +5,7 @@
  */
 export async function findSku(last6) {
   try {
-    const response = await fetch('../inventory.json');
+    const response = await fetch('./inventory.json');
     const inventory = await response.json();
     return inventory.find((item) => item.ean.endsWith(last6)) || null;
   } catch (error) {
