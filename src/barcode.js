@@ -1,4 +1,3 @@
-import JsBarcode from "jsbarcode";
 
 export function renderBarcode(code) {
   let format = "CODE128";
