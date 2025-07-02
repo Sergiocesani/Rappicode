@@ -36,7 +36,7 @@ export function renderBarcode(code) {
   } catch (err) {
     console.error("🚫 Error al renderizar:", err);
     alert("🚫 Este código no se puede generar como código de barras.");
-    document.getElementById("barcode").innerHTML = "";  // limpia SVG
+    document.getElementById("barcode").innerHTML = "";  // limpia  SVG
   }
 }
 
