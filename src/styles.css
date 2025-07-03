@@ -17,13 +17,12 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
+  flex-direction: column;
 }
 
 /* Contenedor principal */
-.container {
+main.container {
+  flex: 1;
   width: 100%;
   max-width: 400px;
   background-color: #ff4d4f; /* rojo Rappi */
@@ -32,6 +31,19 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   color: #fff;
   text-align: center;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo tipo banner */
+.logo {
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 1rem;
+  object-fit: contain;
 }
 
 /* Título */
@@ -87,6 +99,13 @@ button#generateBtn:hover {
 /* Ocultar secciones */
 .hidden {
   display: none;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 1rem;
+  color: #e68e00;
 }
 
 /* Mobile-friendly */
