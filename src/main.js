@@ -8,14 +8,13 @@ const resultSection = document.getElementById('result');
 const skuName = document.getElementById('skuName');
 const barcode = document.getElementById('barcode');
 const fullEan = document.getElementById('fullEan');
+const skuImage = document.getElementById('skuImage');
 
-/**
- * Lógica principal: buscar SKU y mostrar resultados
- */
+// Función principal
 async function buscarYMostrar() {
   const digits = input.value.trim();
 
-  console.clear(); // Limpia la consola cada vez que haces una búsqueda
+  console.clear();
   console.log(`🔍 Buscando SKU con terminación: ${digits}`);
 
   if (digits.length !== 6 || !/^\d{6}$/.test(digits)) {
@@ -31,7 +30,17 @@ async function buscarYMostrar() {
     skuName.textContent = sku.name;
     fullEan.textContent = sku.ean;
 
-    renderBarcode(sku.ean); // Este ya tiene validación interna
+    if (sku.image) {
+      skuImage.src = sku.image;
+      skuImage.alt = sku.name;
+      skuImage.style.display = 'block';
+    } else {
+      skuImage.src = '';
+      skuImage.alt = '';
+      skuImage.style.display = 'none';
+    }
+
+    renderBarcode(sku.ean);
     resultSection.classList.remove('hidden');
   } else {
     console.warn('❌ No se encontró ningún SKU con esos dígitos.');
@@ -40,13 +49,7 @@ async function buscarYMostrar() {
   }
 }
 
-// Escucha del botón
 button.addEventListener('click', buscarYMostrar);
-
-// También permitimos "Enter" desde el input
 input.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    buscarYMostrar();
-  }
+  if (e.key === 'Enter') buscarYMostrar();
 });
-
