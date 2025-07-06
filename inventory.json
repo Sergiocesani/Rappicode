@@ -25455,23 +25455,28 @@
 },
 {
   "ean": "9910015413355",
-  "name": "Los Prados Bife Ancho Cortado Envasado Al Vacío - Refrigerada"
+  "name": "Los Prados Bife Ancho Cortado Envasado Al Vacío - Refrigerada",
+  "image": "https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/refer-r1_fw4Tm0-R.png"
 },
 {
   "ean": "9910015413356",
-  "name": "Los Prados Peceto Envasado Al Vacío - Refrigerada"
+  "name": "Los Prados Peceto Envasado Al Vacío - Refrigerada",
+  "image": "https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/tempimage-SkEQJS1VJg-R.png"
 },
 {
   "ean": "9910015413357",
-  "name": "Los Prados Colita de Cuadril Envasada Al Vacío - Refrigerada"
+  "name": "Los Prados Colita de Cuadril Envasada Al Vacío - Refrigerada",
+  "image": "https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/refer-byifubddp-r-rkm2DjH9T-R.png"
 },
 {
   "ean": "9910015477358",
-  "name": "Los Prados Suprema de Pollo Envasada Al Vacío - Congelada"
+  "name": "Los Prados Suprema de Pollo Envasada Al Vacío - Congelada",
+  "image": "https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/refer-bjeb_zvoa-r-r1H3virqT-R.png"
 },
 {
   "ean": "9910015413359",
-  "name": "Los Prados Carne Picada Envasada Al Vacío - Congelada"
+  "name": "Los Prados Carne Picada Envasada Al Vacío - Congelada",
+  "image": "https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/refer-bydkowvua-r-SJ_nviS96-R.png"
 },
 {
   "ean": "9910015477361",
@@ -25480,7 +25485,8 @@
 },
 {
   "ean": "7791293050201",
-  "name": "Tresemme Ac Ondas Boho St 12X500Ml"
+  "name": "Tresemme Ac Ondas Boho St 12X500Ml",
+  "image": "https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/tempim-B1X5TyVkgl-R.png"
 },
 {
   "ean": "78895120509",
@@ -25488,7 +25494,7 @@
   "image": "https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/tempimage-B1xANOAoWlx-R.png"
 },
 {
-  "ean": "2220000001329",
+  "ean": "2220000 ",
   "name": "Sampling Fanta Pomelo",
   "image": "https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/tempim-SyJE1nu7ge-R.png"
 },
