@@ -6,20 +6,16 @@ export async function findSku(last6) {
     const response = await fetch('./inventory.json');
     const inventory = await response.json();
 
-    // Buscar coincidencia exacta en los últimos 6 dígitos
-    const exact = inventory.find(item => {
-      const eanStr = String(item.ean).trim();
-      return eanStr.slice(-6) === cleaned;
-    });
+    // 1. Prioridad: coincidencia exacta en campo 'short'
+    const byShort = inventory.find(item => item.short === cleaned);
+    if (byShort) return byShort;
 
+    // 2. Coincidencia exacta en los últimos 6 del EAN
+    const exact = inventory.find(item => String(item.ean).slice(-6) === cleaned);
     if (exact) return exact;
 
-    // Si no encuentra, buscar coincidencia parcial como fallback
-    const loose = inventory.find(item => {
-      const eanStr = String(item.ean).trim();
-      return eanStr.includes(cleaned);
-    });
-
+    // 3. Coincidencia más laxa
+    const loose = inventory.find(item => String(item.ean).includes(cleaned));
     return loose || null;
 
   } catch (error) {
@@ -27,4 +23,3 @@ export async function findSku(last6) {
     return null;
   }
 }
-
