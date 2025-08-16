@@ -28,7 +28,7 @@ export function renderBarcode(code) {
   try {
     JsBarcode("#barcode", code, {
       format,
-      lineColor: "#f60",
+      lineColor: "rgba(3, 3, 3, 1)",
       width: 2,
       height: 80,
       displayValue: true,
