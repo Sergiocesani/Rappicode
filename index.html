@@ -13,6 +13,13 @@
  <header class="header">
   <img src="./image/turbologo.png" alt="Turbo Code Logo" class="header-logo" />
 
+  <!-- Botón hamburguesa para mobile -->
+  <button class="nav-toggle" aria-label="Abrir menú">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
   <nav class="nav">
     <a href="index.html">Por últimos 6 dígitos</a>
     <a href="buscar.html">Buscar por nombre</a>
@@ -43,8 +50,22 @@
 
   <footer> <strong>RappiTurboArgentina</strong></footer>
 
+
+   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.querySelector('.nav-toggle');
+      const nav = document.querySelector('.nav');
+
+      if (!toggle || !nav) return;
+
+      toggle.addEventListener('click', () => {
+        nav.classList.toggle('nav-open');
+        toggle.classList.toggle('nav-toggle-open');
+      });
+    });
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
   <script type="module" src="./src/main.js"></script>
 </body>
-
 </html>
