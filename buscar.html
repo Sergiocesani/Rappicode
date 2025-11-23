@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rappi Code - Buscar por nombre</title>
+  <link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <img src="./image/turbologo.png" alt="Turbo Code Logo" class="header-logo" />
+
+    <nav class="nav">
+      <a href="index.html">Por últimos 6 dígitos</a>
+      <a href="buscar.html">Buscar por nombre</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Buscar SKU por nombre</h1>
+
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Ej: Harpic, Listerine, queso untable..."
+    />
+
+    <button id="searchBtn">Buscar</button>
+
+    <section id="searchResults" class="results-list">
+      <!-- Acá se inyectan los resultados -->
+    </section>
+  </main>
+
+  <footer><strong>RappiTurboArgentina</strong></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <script type="module" src="./src/buscar.js"></script>
+</body>
+</html>
