@@ -1,71 +1,75 @@
-import { findSku } from './api.js';
-import { renderBarcode } from './barcode.js';
+  import { findSku } from './api.js';
+  import { renderBarcode } from './barcode.js';
 
-// ─── Elementos del DOM ────────────────────────────────────────────────────────
-const input         = document.getElementById('eanInput');
-const button        = document.getElementById('generateBtn');
-const resultSection = document.getElementById('result');
-const skuName       = document.getElementById('skuName');
-const barcode       = document.getElementById('barcode');
-const fullEan       = document.getElementById('fullEan');
-const skuImage      = document.getElementById('skuImage');
+  document.addEventListener('DOMContentLoaded', () => {
 
-// ─── Función principal ────────────────────────────────────────────────────────
-async function buscarYMostrar () {
-  const digits = input.value.trim();
+    console.log("🔥 main.js cargado y DOM listo");
 
-  console.clear();
-  console.log(`🔍 Buscando SKU con terminación: ${digits}`);
+    const input         = document.getElementById('eanInput');
+    const button        = document.getElementById('generateBtn');
+    const resultSection = document.getElementById('result');
+    const skuName       = document.getElementById('skuName');
+    const barcode       = document.getElementById('barcode');
+    const fullEan       = document.getElementById('fullEan');
+    const skuImage      = document.getElementById('skuImage');
 
-  // Validación del input
-  if (digits.length !== 6 || !/^\d{6}$/.test(digits)) {
-    alert('❌ Ingresá exactamente 6 dígitos numéricos.');
-    return;
-  }
-
-  // 1) Buscar el SKU en inventory.json (vía findSku)
-  const sku = await findSku(digits);
-
-  if (sku) {
-    console.log('✅ SKU encontrado:', sku);
-
-    skuName.textContent = sku.name;
-    fullEan.textContent = sku.ean;
-
-    // 2) Buscar la imagen correspondiente en images.json
-    try {
-      const imageResponse = await fetch('./images.json');
-      const imageData     = await imageResponse.json();
-      const matchImage    = imageData.find(item => item.ean === sku.ean);
-
-      if (matchImage && matchImage.image) {
-        skuImage.src   = matchImage.image;
-        skuImage.alt   = sku.name;
-        skuImage.style.display = 'block';
-      } else {
-        skuImage.src   = '';
-        skuImage.alt   = '';
-        skuImage.style.display = 'none';
-      }
-    } catch (err) {
-      console.error('Error cargando images.json:', err);
-      skuImage.style.display = 'none';
+    // --- Validación ---
+    if (!input || !button || !resultSection) {
+      console.error("❌ ERROR: Elementos no encontrados en el DOM");
+      console.log({
+        input,
+        button,
+        resultSection
+      });
+      return; // detiene el script antes del crash
     }
 
-    // 3) Renderizar el código de barras (EAN13, EAN8 o CODE128)
-    renderBarcode(sku.ean);
+    async function buscarYMostrar () {
+      const digits = input.value.trim();
 
-    // 4) Mostrar la sección de resultados
-    resultSection.classList.remove('hidden');
-  } else {
-    console.warn('❌ No se encontró ningún SKU con esos dígitos.');
-    resultSection.classList.add('hidden');
-    alert('❌ No se encontró ningún producto con esos 6 dígitos.');
-  }
-}
+      console.clear();
+      console.log(`🔍 Buscando SKU con terminación: ${digits}`);
 
-// ─── Listeners ────────────────────────────────────────────────────────────────
-button.addEventListener('click', buscarYMostrar);
-input.addEventListener('keydown', e => {
-  if (e.key === 'Enter') buscarYMostrar();
-});
+      if (digits.length !== 6 || !/^\d{6}$/.test(digits)) {
+        alert('❌ Ingresá exactamente 6 dígitos numéricos.');
+        return;
+      }
+
+      const sku = await findSku(digits);
+
+      if (sku) {
+        console.log('✅ SKU encontrado:', sku);
+
+        skuName.textContent = sku.name;
+        fullEan.textContent = sku.ean;
+
+        try {
+          const imgRes = await fetch('./images.json');
+          const imgData = await imgRes.json();
+          const matchImage = imgData.find(item => item.ean === sku.ean);
+
+          if (matchImage && matchImage.image) {
+            skuImage.src = matchImage.image;
+            skuImage.style.display = 'block';
+          } else {
+            skuImage.style.display = 'none';
+          }
+        } catch (err) {
+          console.error("Error cargando images.json:", err);
+          skuImage.style.display = 'none';
+        }
+
+        renderBarcode(sku.ean);
+        resultSection.classList.remove('hidden');
+      } else {
+        alert('❌ No se encontró ningún producto con esos 6 dígitos.');
+        resultSection.classList.add('hidden');
+      }
+    }
+
+    button.addEventListener('click', buscarYMostrar);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') buscarYMostrar();
+    });
+
+  });
