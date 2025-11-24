@@ -1,11 +1,10 @@
 let inventoryCache = null;
 let imagesCache = null;
-let productsCache = null;
 
 // --- Helpers para cargar JSON ---
 async function loadInventory() {
   if (!inventoryCache) {
-    const res = await fetch('/inventory.json');
+    const res = await fetch('./inventory.json');
     inventoryCache = await res.json();
   }
   return inventoryCache;
@@ -13,18 +12,10 @@ async function loadInventory() {
 
 async function loadImages() {
   if (!imagesCache) {
-    const res = await fetch('/images.json');
+    const res = await fetch('./images.json');
     imagesCache = await res.json();
   }
   return imagesCache;
-}
-
-async function loadProducts() {
-  if (!productsCache) {
-    const res = await fetch('/products.json');
-    productsCache = await res.json();
-  }
-  return productsCache;
 }
 
 // --- Helper para elegir formato de código de barras ---
@@ -47,7 +38,7 @@ function getBarcodeFormat(code) {
 }
 
 // --- Pintar resultados en pantalla como CARROUSEL ---
-function renderResults(results, images, products) {
+function renderResults(results, images) {
   const container = document.getElementById('searchResults');
   container.innerHTML = '';
 
@@ -82,8 +73,6 @@ function renderResults(results, images, products) {
     const matchImage = images.find(img => img.ean === item.ean);
     const imgSrc = matchImage ? matchImage.image : '';
 
-    const prod = products.find(p => p.ean === item.ean) || {};
-
     li.innerHTML = `
       <div class="result-header">
         <p class="result-name"><strong>${item.name}</strong></p>
@@ -91,18 +80,15 @@ function renderResults(results, images, products) {
 
       <div class="result-main">
         <div class="result-image-wrapper">
-          <img src="${imgSrc}" alt="${item.name}" />
+          ${
+            imgSrc
+              ? `<img src="${imgSrc}" alt="${item.name}" />`
+              : `<div class="no-image">Sin imagen</div>`
+          }
         </div>
         <div class="result-barcode-wrapper">
           <svg class="result-barcode"></svg>
         </div>
-      </div>
-
-      <div class="result-extra">
-        <p><strong>Marca:</strong> ${prod.brand || "-"}</p>
-        <p><strong>Presentación:</strong> ${prod.presentation || "-"}</p>
-        <p><strong>Zona:</strong> ${prod.temperature}</p>
-        <p><strong>Perecedero:</strong> ${prod.perishable ? "Sí" : "No"}</p>
       </div>
 
       <p class="result-ean">EAN: ${item.ean}</p>
@@ -133,7 +119,7 @@ function renderResults(results, images, products) {
   carousel.appendChild(trackContainer);
   carousel.appendChild(nextBtn);
 
-  // Contador tipo "1 / 5"
+  // Contador tipo "1 / N"
   const counter = document.createElement('div');
   counter.classList.add('carousel-counter');
   counter.textContent = `1 / ${results.length}`;
@@ -179,7 +165,6 @@ async function buscar() {
 
   const inventory = await loadInventory();
   const images = await loadImages();
-  const products = await loadProducts();
 
   let results = [];
 
@@ -201,7 +186,7 @@ async function buscar() {
     );
   }
 
-  renderResults(results, images, products);
+  renderResults(results, images);
 }
 
 // --- Listeners ---

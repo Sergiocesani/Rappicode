@@ -44,7 +44,7 @@
         fullEan.textContent = sku.ean;
 
         try {
-          const imgRes = await fetch('/images.json');
+          const imgRes = await fetch('./images.json');
           const imgData = await imgRes.json();
           const matchImage = imgData.find(item => item.ean === sku.ean);
 
