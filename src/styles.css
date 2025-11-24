@@ -356,6 +356,61 @@ results-list ul {
 }
 
 /* Animación suave */
+
+/* --- CARROUSEL DE RESULTADOS (buscar.html) --- */
+.carousel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.carousel-track-container {
+  width: 100%;
+}
+
+.carousel-track {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Importante: solo se ve el .active */
+.result-item {
+  display: none;               /* oculta todos por defecto */
+}
+
+.result-item.active {
+  display: flex;               /* hereda tu layout de tarjeta */
+  flex-direction: column;
+}
+
+.carousel-btn {
+  border: none;
+  background: #111;
+  color: #ffcc00;
+  font-size: 1.4rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0.2rem 0;
+}
+
+.carousel-btn:hover {
+  background: #ffcc00;
+  color: #000;
+}
+
+.carousel-counter {
+  font-size: 0.9rem;
+  color: #ffcc00;
+}
+
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

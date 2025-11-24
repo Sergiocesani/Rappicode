@@ -9,7 +9,7 @@ export async function findSku(last6) {
 
     console.log('findSku: buscando SKU con terminación', cleaned);
 
-    const response = await fetch('./inventory.json');
+    const response = await fetch('/inventory.json');
     console.log('findSku: response status', response.status);
 
     if (!response.ok) {

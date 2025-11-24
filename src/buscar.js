@@ -1,10 +1,11 @@
 let inventoryCache = null;
 let imagesCache = null;
+let productsCache = null;
 
 // --- Helpers para cargar JSON ---
 async function loadInventory() {
   if (!inventoryCache) {
-    const res = await fetch('./inventory.json');
+    const res = await fetch('/inventory.json');
     inventoryCache = await res.json();
   }
   return inventoryCache;
@@ -12,10 +13,18 @@ async function loadInventory() {
 
 async function loadImages() {
   if (!imagesCache) {
-    const res = await fetch('./images.json');
+    const res = await fetch('/images.json');
     imagesCache = await res.json();
   }
   return imagesCache;
+}
+
+async function loadProducts() {
+  if (!productsCache) {
+    const res = await fetch('/products.json');
+    productsCache = await res.json();
+  }
+  return productsCache;
 }
 
 // --- Helper para elegir formato de código de barras ---
@@ -37,8 +46,8 @@ function getBarcodeFormat(code) {
   return 'CODE128';
 }
 
-// --- Pintar resultados en pantalla ---
-function renderResults(results, images) {
+// --- Pintar resultados en pantalla como CARROUSEL ---
+function renderResults(results, images, products) {
   const container = document.getElementById('searchResults');
   container.innerHTML = '';
 
@@ -47,54 +56,115 @@ function renderResults(results, images) {
     return;
   }
 
-  const list = document.createElement('ul');
+  // Contenedor del carrousel
+  const carousel = document.createElement('div');
+  carousel.classList.add('carousel');
 
-  results.forEach(item => {
+  const prevBtn = document.createElement('button');
+  prevBtn.classList.add('carousel-btn', 'carousel-btn-prev');
+  prevBtn.textContent = '⟨';
+
+  const nextBtn = document.createElement('button');
+  nextBtn.classList.add('carousel-btn', 'carousel-btn-next');
+  nextBtn.textContent = '⟩';
+
+  const trackContainer = document.createElement('div');
+  trackContainer.classList.add('carousel-track-container');
+
+  const list = document.createElement('ul');
+  list.classList.add('carousel-track');
+
+  results.forEach((item, index) => {
     const li = document.createElement('li');
     li.classList.add('result-item');
+    if (index === 0) li.classList.add('active');
 
     const matchImage = images.find(img => img.ean === item.ean);
     const imgSrc = matchImage ? matchImage.image : '';
 
+    const prod = products.find(p => p.ean === item.ean) || {};
+
     li.innerHTML = `
-  <div class="result-header">
-    <p class="result-name"><strong>${item.name}</strong></p>
-  </div>
+      <div class="result-header">
+        <p class="result-name"><strong>${item.name}</strong></p>
+      </div>
 
-  <div class="result-main">
-    <div class="result-image-wrapper">
-      <img src="${imgSrc}" alt="${item.name}" />
-    </div>
-    <div class="result-barcode-wrapper">
-      <svg class="result-barcode"></svg>
-    </div>
-  </div>
+      <div class="result-main">
+        <div class="result-image-wrapper">
+          <img src="${imgSrc}" alt="${item.name}" />
+        </div>
+        <div class="result-barcode-wrapper">
+          <svg class="result-barcode"></svg>
+        </div>
+      </div>
 
-  <p class="result-ean">EAN: ${item.ean}</p>
-`;
+      <div class="result-extra">
+        <p><strong>Marca:</strong> ${prod.brand || "-"}</p>
+        <p><strong>Presentación:</strong> ${prod.presentation || "-"}</p>
+        <p><strong>Zona:</strong> ${prod.temperature}</p>
+        <p><strong>Perecedero:</strong> ${prod.perishable ? "Sí" : "No"}</p>
+      </div>
+
+      <p class="result-ean">EAN: ${item.ean}</p>
+    `;
 
     list.appendChild(li);
 
-    // Generar el código de barras para este item
+    // Generar código de barras para este item
     const svg = li.querySelector('.result-barcode');
-const format = getBarcodeFormat(item.ean);
+    const format = getBarcodeFormat(item.ean);
 
-try {
-  JsBarcode(svg, String(item.ean), {
-    format,
-    lineColor: '#000000',
-    width: 2.4,      // un poco más ancho por “línea”
-    height: 90,      // más alto
-    displayValue: true,
-    fontSize: 16     // texto del EAN más grande
+    try {
+      JsBarcode(svg, String(item.ean), {
+        format,
+        lineColor: '#000000',
+        width: 2.4,
+        height: 90,
+        displayValue: true,
+        fontSize: 16
+      });
+    } catch (err) {
+      console.error('Error generando código de barras para', item.ean, err);
+    }
   });
-} catch (err) {
-  console.error('Error generando código de barras para', item.ean, err);
-}
 
+  trackContainer.appendChild(list);
+  carousel.appendChild(prevBtn);
+  carousel.appendChild(trackContainer);
+  carousel.appendChild(nextBtn);
+
+  // Contador tipo "1 / 5"
+  const counter = document.createElement('div');
+  counter.classList.add('carousel-counter');
+  counter.textContent = `1 / ${results.length}`;
+
+  container.appendChild(carousel);
+  container.appendChild(counter);
+
+  // --- Lógica de carrousel ---
+  let currentIndex = 0;
+  const items = list.querySelectorAll('.result-item');
+
+  function updateActive() {
+    items.forEach((item, idx) => {
+      item.classList.toggle('active', idx === currentIndex);
+    });
+    counter.textContent = `${currentIndex + 1} / ${results.length}`;
+  }
+
+  prevBtn.addEventListener('click', () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateActive();
+    }
   });
 
-  container.appendChild(list);
+  nextBtn.addEventListener('click', () => {
+    if (currentIndex < items.length - 1) {
+      currentIndex++;
+      updateActive();
+    }
+  });
 }
 
 // --- Función principal de búsqueda ---
@@ -109,6 +179,7 @@ async function buscar() {
 
   const inventory = await loadInventory();
   const images = await loadImages();
+  const products = await loadProducts();
 
   let results = [];
 
@@ -130,7 +201,7 @@ async function buscar() {
     );
   }
 
-  renderResults(results, images);
+  renderResults(results, images, products);
 }
 
 // --- Listeners ---
