@@ -60813,7 +60813,7 @@
   },
   {
     "ean": "7790070336477",
-    "image": "https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/tempim-rJepVMGGoxx-R.png"
+    "image": "./image/fideoterrabusi.webp"
   },
   {
     "ean": "7790070265128",
@@ -64566,5 +64566,9 @@
   {
     "ean":"7791290796607",
     "image":"https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/tempim-HJMjMlxx-x-L.png"
+  },
+  {
+    "ean":"7798459400016",
+    "image":"https://rappi-cargo-br.s3.amazonaws.com/ar/vivo-images/app/tempim-H1rmLPh3ge-L.png"
   }
 ]
