@@ -1,91 +1,73 @@
-let inventoryCache = null;
-let imagesCache = null;
+// src/buscar.js
+import { getBarcodeFormat } from "./barcodeFormat.js";
+import { getStore } from "./dataStore.js";
 
-// --- Helpers para cargar JSON ---
-async function loadInventory() {
-  if (!inventoryCache) {
-    const res = await fetch('./inventory.json');
-    inventoryCache = await res.json();
+function toast(msg, ms = 1200) {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), ms);
+}
+
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(String(text));
+    toast("Copiado ✅");
+  } catch {
+    toast("No se pudo copiar");
   }
-  return inventoryCache;
 }
 
-async function loadImages() {
-  if (!imagesCache) {
-    const res = await fetch('./images.json');
-    imagesCache = await res.json();
-  }
-  return imagesCache;
-}
-
-// --- Helper para elegir formato de código de barras ---
-function getBarcodeFormat(code) {
-  const str = String(code).trim();
-
-  const isValidEAN13 = ean => {
-    if (!/^\d{13}$/.test(ean)) return false;
-    const digits = ean.split('').map(Number);
-    const sum = digits
-      .slice(0, 12)
-      .reduce((acc, d, i) => acc + d * (i % 2 === 0 ? 1 : 3), 0);
-    const checkDigit = (10 - (sum % 10)) % 10;
-    return checkDigit === digits[12];
-  };
-
-  if (isValidEAN13(str)) return 'EAN13';
-  if (/^\d{8}$/.test(str)) return 'EAN8';
-  return 'CODE128';
-}
-
-// --- Pintar resultados en pantalla como CARROUSEL ---
-function renderResults(results, images) {
-  const container = document.getElementById('searchResults');
-  container.innerHTML = '';
+function renderResults(results, store) {
+  const container = document.getElementById("searchResults");
+  container.innerHTML = "";
 
   if (!results.length) {
-    container.innerHTML = '<p>No se encontraron productos.</p>';
+    container.innerHTML = "<p>No se encontraron productos.</p>";
     return;
   }
 
-  // Contenedor del carrousel
-  const carousel = document.createElement('div');
-  carousel.classList.add('carousel');
+  const carousel = document.createElement("div");
+  carousel.className = "carousel";
 
-  const prevBtn = document.createElement('button');
-  prevBtn.classList.add('carousel-btn', 'carousel-btn-prev');
-  prevBtn.textContent = '⟨';
+  const prevBtn = document.createElement("button");
+  prevBtn.className = "carousel-btn carousel-btn-prev";
+  prevBtn.type = "button";
+  prevBtn.textContent = "⟨";
 
-  const nextBtn = document.createElement('button');
-  nextBtn.classList.add('carousel-btn', 'carousel-btn-next');
-  nextBtn.textContent = '⟩';
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "carousel-btn carousel-btn-next";
+  nextBtn.type = "button";
+  nextBtn.textContent = "⟩";
 
-  const trackContainer = document.createElement('div');
-  trackContainer.classList.add('carousel-track-container');
+  const trackContainer = document.createElement("div");
+  trackContainer.className = "carousel-track-container";
 
-  const list = document.createElement('ul');
-  list.classList.add('carousel-track');
+  const list = document.createElement("ul");
+  list.className = "carousel-track";
 
   results.forEach((item, index) => {
-    const li = document.createElement('li');
-    li.classList.add('result-item');
-    if (index === 0) li.classList.add('active');
+    const li = document.createElement("li");
+    li.className = "result-item" + (index === 0 ? " active" : "");
 
-    const matchImage = images.find(img => img.ean === item.ean);
-    const imgSrc = matchImage ? matchImage.image : '';
+    const imgSrc = store.getImage(item.ean);
 
     li.innerHTML = `
       <div class="result-header">
-        <p class="result-name"><strong>${item.name}</strong></p>
+        <p class="result-name"><strong>${item.name || "Sin nombre"}</strong></p>
+        <button class="btn-mini js-copy" type="button">Copiar EAN</button>
       </div>
 
       <div class="result-main">
         <div class="result-image-wrapper">
           ${
             imgSrc
-              ? `<img src="${imgSrc}" alt="${item.name}" />`
+              ? `<img src="${imgSrc}" alt="${item.name || "Producto"}" />`
               : `<div class="no-image">Sin imagen</div>`
           }
         </div>
+
         <div class="result-barcode-wrapper">
           <svg class="result-barcode"></svg>
         </div>
@@ -94,24 +76,25 @@ function renderResults(results, images) {
       <p class="result-ean">EAN: ${item.ean}</p>
     `;
 
-    list.appendChild(li);
+    li.querySelector(".js-copy")?.addEventListener("click", () => copyToClipboard(item.ean));
 
-    // Generar código de barras para este item
-    const svg = li.querySelector('.result-barcode');
+    const svg = li.querySelector(".result-barcode");
     const format = getBarcodeFormat(item.ean);
 
     try {
       JsBarcode(svg, String(item.ean), {
         format,
-        lineColor: '#000000',
+        lineColor: "#000000",
         width: 2.4,
         height: 90,
         displayValue: true,
-        fontSize: 16
+        fontSize: 16,
       });
     } catch (err) {
-      console.error('Error generando código de barras para', item.ean, err);
+      console.error("Error generando barcode para", item.ean, err);
     }
+
+    list.appendChild(li);
   });
 
   trackContainer.appendChild(list);
@@ -119,33 +102,29 @@ function renderResults(results, images) {
   carousel.appendChild(trackContainer);
   carousel.appendChild(nextBtn);
 
-  // Contador tipo "1 / N"
-  const counter = document.createElement('div');
-  counter.classList.add('carousel-counter');
+  const counter = document.createElement("div");
+  counter.className = "carousel-counter";
   counter.textContent = `1 / ${results.length}`;
 
   container.appendChild(carousel);
   container.appendChild(counter);
 
-  // --- Lógica de carrousel ---
   let currentIndex = 0;
-  const items = list.querySelectorAll('.result-item');
+  const items = list.querySelectorAll(".result-item");
 
   function updateActive() {
-    items.forEach((item, idx) => {
-      item.classList.toggle('active', idx === currentIndex);
-    });
+    items.forEach((node, idx) => node.classList.toggle("active", idx === currentIndex));
     counter.textContent = `${currentIndex + 1} / ${results.length}`;
   }
 
-  prevBtn.addEventListener('click', () => {
+  prevBtn.addEventListener("click", () => {
     if (currentIndex > 0) {
       currentIndex--;
       updateActive();
     }
   });
 
-  nextBtn.addEventListener('click', () => {
+  nextBtn.addEventListener("click", () => {
     if (currentIndex < items.length - 1) {
       currentIndex++;
       updateActive();
@@ -153,49 +132,46 @@ function renderResults(results, images) {
   });
 }
 
-// --- Función principal de búsqueda ---
 async function buscar() {
-  const raw = document.getElementById('searchInput').value.trim();
-  const term = raw.toLowerCase();
-
+  const raw = document.getElementById("searchInput").value.trim();
   if (!raw) {
-    alert('Escribí algo para buscar.');
+    alert("Escribí algo para buscar.");
     return;
   }
 
-  const inventory = await loadInventory();
-  const images = await loadImages();
+  const store = await getStore();
 
-  let results = [];
-
-  // Si son exactamente 6 dígitos → buscar por últimos 6 del EAN
+  // 6 dígitos => last6
   if (/^\d{6}$/.test(raw)) {
-    results = inventory.filter(item =>
-      String(item.ean).slice(-6) === raw
-    );
-  } else {
-    // Buscar por nombre (al menos 3 letras)
-    if (term.length < 3) {
-      alert('Escribí al menos 3 letras para buscar por nombre.');
-      return;
-    }
+    const byShort = store.findByShort(raw);
+    const byLast6 = store.findByLast6(raw);
 
-    results = inventory.filter(item =>
-      item.name &&
-      item.name.toLowerCase().includes(term)
-    );
+    const map = new Map();
+    for (const it of [...byShort, ...byLast6]) {
+      const key = `${it.ean}__${it.name}`;
+      map.set(key, it);
+    }
+    const results = Array.from(map.values());
+    renderResults(results, store);
+    return;
   }
 
-  renderResults(results, images);
+  // texto => nombre (>=3)
+  if (raw.length < 3) {
+    alert("Escribí al menos 3 letras para buscar por nombre.");
+    return;
+  }
+
+  const results = store.searchByName(raw, { limit: 120 });
+  renderResults(results, store);
 }
 
-// --- Listeners ---
-document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('searchBtn');
-  const input = document.getElementById('searchInput');
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("searchBtn");
+  const input = document.getElementById("searchInput");
 
-  btn.addEventListener('click', buscar);
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') buscar();
+  btn?.addEventListener("click", buscar);
+  input?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") buscar();
   });
 });

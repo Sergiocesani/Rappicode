@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TurboScan — Catálogo rápido + EAN + escaneo" />
+  <meta name="author" content="Squad de Auditoría - Sergio Cesani" />
+  <title>TurboScan — Home</title>
+  <link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+
+<header class="header">
+  <!-- Reemplazá con tu nuevo logo -->
+  <img src="./image/TurboScan.png" alt="TurboScan Logo" class="header-logo" />
+
+  <button class="nav-toggle" aria-label="Abrir menú">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav class="nav">
+    <a href="home.html">Home</a>
+    <a href="index.html">Por últimos 6 dígitos</a>
+    <a href="buscar.html">Buscar por nombre</a>
+  </nav>
+</header>
+
+<main class="container home">
+  <!-- HERO -->
+  <section class="home-hero">
+    <div class="home-hero__left">
+      <h1 class="home-title">TURBOSCAN</h1>
+      <p class="home-subtitle">Catálogo rápido + barcode + copy. Hecho para operar.</p>
+
+      <div class="home-actions">
+        <button class="btn-primary" id="scanBtn" type="button">Escanear</button>
+        <a class="btn-ghost" href="index.html">Últimos 6</a>
+        <a class="btn-ghost" href="buscar.html">Buscar nombre</a>
+      </div>
+
+      <div class="home-search">
+        <input id="homeSearchInput" type="text" placeholder="Buscar por nombre o pegar EAN…" autocomplete="off" />
+        <button id="homeSearchClear" class="btn-mini" type="button">Limpiar</button>
+      </div>
+
+      <div class="home-meta">
+        <span id="homeCount" class="home-pill">Cargando…</span>
+        <span class="home-pill home-pill--muted">Tip: Enter abre el primer resultado</span>
+      </div>
+    </div>
+
+    <div class="home-hero__right">
+      <div class="home-card">
+        <div class="home-card__title">Acceso rápido</div>
+        <div class="home-card__text">
+          - Click en un producto para abrir detalle.<br/>
+          - Copiá EAN en 1 toque.<br/>
+          - Barcode listo para escanear.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRID -->
+  <section class="home-grid-wrap">
+    <div class="home-grid-head">
+      <h2 class="home-grid-title">Catálogo</h2>
+      <div class="home-grid-tools">
+        <button id="shuffleBtn" class="btn-mini" type="button">Random</button>
+        <button id="topBtn" class="btn-mini" type="button">Top</button>
+      </div>
+    </div>
+
+    <div id="homeGrid" class="home-grid"></div>
+    <div id="homeEmpty" class="home-empty hidden">No hay resultados para esa búsqueda.</div>
+  </section>
+</main>
+
+<!-- DRAWER DETALLE -->
+<div id="drawerOverlay" class="drawer-overlay hidden"></div>
+
+<aside id="drawer" class="drawer hidden" aria-hidden="true">
+  <div class="drawer-head">
+    <div class="drawer-title" id="drawerTitle">Producto</div>
+    <button id="drawerClose" class="btn-mini" type="button">Cerrar</button>
+  </div>
+
+  <div class="drawer-body">
+    <div class="drawer-media">
+      <img id="drawerImage" alt="Imagen producto" />
+    </div>
+
+    <div class="drawer-info">
+      <div class="drawer-row">
+        <span class="drawer-label">EAN</span>
+        <span class="drawer-value" id="drawerEan"></span>
+      </div>
+
+      <div class="drawer-actions">
+        <button id="drawerCopy" class="btn-primary" type="button">Copiar EAN</button>
+      </div>
+
+      <div class="drawer-barcode">
+        <svg id="drawerBarcode"></svg>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MODAL SCAN (placeholder) -->
+<div id="scanModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title">Escanear (próximo paso)</div>
+      <button id="scanClose" class="btn-mini" type="button">Cerrar</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-text">
+        Acá vamos a abrir la cámara y detectar EAN automáticamente.
+        Si tu navegador soporta BarcodeDetector, es nativo y rápido.
+      </p>
+      <p class="modal-text modal-text--muted">
+        Por ahora lo dejamos como “modo demo” y lo codeamos en el siguiente paso.
+      </p>
+    </div>
+
+    <div class="modal-actions">
+      <a class="btn-ghost" href="index.html">Ir a últimos 6</a>
+      <a class="btn-ghost" href="buscar.html">Ir a buscar</a>
+    </div>
+  </div>
+</div>
+
+<footer><strong>TurboScan</strong></footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.querySelector('.nav-toggle');
+    const nav = document.querySelector('.nav');
+    if (!toggle || !nav) return;
+
+    toggle.addEventListener('click', () => {
+      nav.classList.toggle('nav-open');
+      toggle.classList.toggle('nav-toggle-open');
+    });
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script type="module" src="./src/home.js"></script>
+</body>
+</html>
