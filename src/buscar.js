@@ -2,6 +2,8 @@
 import { getBarcodeFormat } from "./barcodeFormat.js";
 import { getStore } from "./dataStore.js";
 
+const $ = (id) => document.getElementById(id);
+
 function toast(msg, ms = 1200) {
   const el = document.createElement("div");
   el.className = "toast";
@@ -19,43 +21,54 @@ async function copyToClipboard(text) {
   }
 }
 
-function renderResults(results, store) {
-  const container = document.getElementById("searchResults");
+function safeText(v) {
+  return (v ?? "").toString();
+}
+
+function dedupeByEan(items) {
+  const m = new Map();
+  for (const it of items) {
+    const key = String(it?.ean ?? "").trim();
+    if (key) m.set(key, it);
+  }
+  return [...m.values()];
+}
+
+function buildCarouselShell(total) {
+  const container = $("searchResults");
   container.innerHTML = "";
 
-  if (!results.length) {
-    container.innerHTML = "<p>No se encontraron productos.</p>";
-    return;
-  }
+  const wrap = document.createElement("section");
+  wrap.className = "search-carousel";
 
-  const carousel = document.createElement("div");
-  carousel.className = "carousel";
+  wrap.innerHTML = `
+    <div class="search-carousel__head">
+      <div class="search-carousel__title">Resultados</div>
+      <div class="search-carousel__counter" id="scCounter">1 / ${total}</div>
+    </div>
 
-  const prevBtn = document.createElement("button");
-  prevBtn.className = "carousel-btn carousel-btn-prev";
-  prevBtn.type = "button";
-  prevBtn.textContent = "⟨";
+    <div class="search-carousel__frame">
+      <button class="carousel-btn" id="scPrev" type="button" aria-label="Anterior">⟨</button>
+      <div class="search-carousel__stage" id="scStage"></div>
+      <button class="carousel-btn" id="scNext" type="button" aria-label="Siguiente">⟩</button>
+    </div>
+  `;
 
-  const nextBtn = document.createElement("button");
-  nextBtn.className = "carousel-btn carousel-btn-next";
-  nextBtn.type = "button";
-  nextBtn.textContent = "⟩";
+  container.appendChild(wrap);
+}
 
-  const trackContainer = document.createElement("div");
-  trackContainer.className = "carousel-track-container";
+function renderActiveSlide(item, store) {
+  const stage = $("scStage");
+  if (!stage) return;
 
-  const list = document.createElement("ul");
-  list.className = "carousel-track";
+  const name = safeText(item?.name) || "Sin nombre";
+  const ean = safeText(item?.ean);
+  const imgSrc = store.getImage(ean);
 
-  results.forEach((item, index) => {
-    const li = document.createElement("li");
-    li.className = "result-item" + (index === 0 ? " active" : "");
-
-    const imgSrc = store.getImage(item.ean);
-
-    li.innerHTML = `
+  stage.innerHTML = `
+    <article class="result-item active">
       <div class="result-header">
-        <p class="result-name"><strong>${item.name || "Sin nombre"}</strong></p>
+        <p class="result-name"><strong>${name}</strong></p>
         <button class="btn-mini js-copy" type="button">Copiar EAN</button>
       </div>
 
@@ -63,27 +76,29 @@ function renderResults(results, store) {
         <div class="result-image-wrapper">
           ${
             imgSrc
-              ? `<img src="${imgSrc}" alt="${item.name || "Producto"}" />`
+              ? `<img src="${imgSrc}" alt="${name}" loading="lazy" />`
               : `<div class="no-image">Sin imagen</div>`
           }
         </div>
 
         <div class="result-barcode-wrapper">
-          <svg class="result-barcode"></svg>
+          <svg class="result-barcode" id="scBarcode"></svg>
         </div>
       </div>
 
-      <p class="result-ean">EAN: ${item.ean}</p>
-    `;
+      <p class="result-ean">EAN: <strong>${ean}</strong></p>
+    </article>
+  `;
 
-    li.querySelector(".js-copy")?.addEventListener("click", () => copyToClipboard(item.ean));
+  stage.querySelector(".js-copy")?.addEventListener("click", () => copyToClipboard(ean));
 
-    const svg = li.querySelector(".result-barcode");
-    const format = getBarcodeFormat(item.ean);
-
+  // ✅ Barcode SOLO del item activo (esto es lo que acelera todo)
+  const svg = $("scBarcode");
+  if (svg) {
     try {
-      JsBarcode(svg, String(item.ean), {
-        format,
+      svg.innerHTML = "";
+      JsBarcode(svg, String(ean), {
+        format: getBarcodeFormat(ean),
         lineColor: "#000000",
         width: 2.4,
         height: 90,
@@ -91,87 +106,93 @@ function renderResults(results, store) {
         fontSize: 16,
       });
     } catch (err) {
-      console.error("Error generando barcode para", item.ean, err);
+      console.error("Error barcode:", err);
     }
-
-    list.appendChild(li);
-  });
-
-  trackContainer.appendChild(list);
-  carousel.appendChild(prevBtn);
-  carousel.appendChild(trackContainer);
-  carousel.appendChild(nextBtn);
-
-  const counter = document.createElement("div");
-  counter.className = "carousel-counter";
-  counter.textContent = `1 / ${results.length}`;
-
-  container.appendChild(carousel);
-  container.appendChild(counter);
-
-  let currentIndex = 0;
-  const items = list.querySelectorAll(".result-item");
-
-  function updateActive() {
-    items.forEach((node, idx) => node.classList.toggle("active", idx === currentIndex));
-    counter.textContent = `${currentIndex + 1} / ${results.length}`;
   }
-
-  prevBtn.addEventListener("click", () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      updateActive();
-    }
-  });
-
-  nextBtn.addEventListener("click", () => {
-    if (currentIndex < items.length - 1) {
-      currentIndex++;
-      updateActive();
-    }
-  });
 }
 
 async function buscar() {
-  const raw = document.getElementById("searchInput").value.trim();
+  const raw = $("searchInput")?.value.trim() || "";
   if (!raw) {
     alert("Escribí algo para buscar.");
     return;
   }
 
+  // UX: loader simple
+  const container = $("searchResults");
+  container.innerHTML = `<div class="home-empty">Buscando…</div>`;
+
   const store = await getStore();
 
-  // 6 dígitos => last6
+  let results = [];
+
+  // Si son 6 dígitos: short + last6 (rápido por Map)
   if (/^\d{6}$/.test(raw)) {
-    const byShort = store.findByShort(raw);
-    const byLast6 = store.findByLast6(raw);
-
-    const map = new Map();
-    for (const it of [...byShort, ...byLast6]) {
-      const key = `${it.ean}__${it.name}`;
-      map.set(key, it);
+    results = dedupeByEan([...store.findByShort(raw), ...store.findByLast6(raw)]);
+  } else {
+    if (raw.length < 3) {
+      alert("Escribí al menos 3 letras para buscar por nombre.");
+      container.innerHTML = "";
+      return;
     }
-    const results = Array.from(map.values());
-    renderResults(results, store);
+    // ✅ limit razonable para no cargar de más
+    results = store.searchByName(raw, { limit: 120 });
+  }
+
+  if (!results.length) {
+    container.innerHTML = `<div class="home-empty">No se encontraron productos.</div>`;
     return;
   }
 
-  // texto => nombre (>=3)
-  if (raw.length < 3) {
-    alert("Escribí al menos 3 letras para buscar por nombre.");
-    return;
+  // ---- Carousel real (1 item visible) ----
+  buildCarouselShell(results.length);
+
+  let idx = 0;
+  const counter = $("scCounter");
+  const prev = $("scPrev");
+  const next = $("scNext");
+
+  function paint() {
+    if (counter) counter.textContent = `${idx + 1} / ${results.length}`;
+    renderActiveSlide(results[idx], store);
+
+    // deshabilitar límites
+    if (prev) prev.disabled = idx === 0;
+    if (next) next.disabled = idx === results.length - 1;
   }
 
-  const results = store.searchByName(raw, { limit: 120 });
-  renderResults(results, store);
+  prev?.addEventListener("click", () => {
+    if (idx > 0) {
+      idx--;
+      paint();
+    }
+  });
+
+  next?.addEventListener("click", () => {
+    if (idx < results.length - 1) {
+      idx++;
+      paint();
+    }
+  });
+
+  // teclado
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft" && idx > 0) {
+      idx--;
+      paint();
+    }
+    if (e.key === "ArrowRight" && idx < results.length - 1) {
+      idx++;
+      paint();
+    }
+  });
+
+  paint();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("searchBtn");
-  const input = document.getElementById("searchInput");
-
-  btn?.addEventListener("click", buscar);
-  input?.addEventListener("keydown", (e) => {
+  $("searchBtn")?.addEventListener("click", buscar);
+  $("searchInput")?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") buscar();
   });
 });
