@@ -1,3 +1,10 @@
+/* =========================
+   TurboScan — styles.css (LIMPIO)
+   - sin reglas duplicadas
+   - imágenes controladas (index / buscar / home / drawer)
+   - carousel + mobile spacing
+   ========================= */
+
 /* Reset */
 *{ margin:0; padding:0; box-sizing:border-box; }
 
@@ -9,6 +16,7 @@
   --text:#f3f4f6;
   --muted: rgba(243,244,246,.72);
   --brand:#ffcc00;
+  --accent:#ff8c00; /* hover naranja */
   --shadow: 0 10px 30px rgba(0,0,0,.45);
   --radius:16px;
   --radius-sm:12px;
@@ -29,7 +37,11 @@ body{
   overflow-x:hidden;
 }
 
-/* Header / Nav */
+.hidden{ display:none !important; }
+
+/* =========================
+   Header / Nav
+   ========================= */
 .header{
   position: sticky;
   top:0;
@@ -105,7 +117,9 @@ body{
 .nav-toggle-open span:nth-child(2){ opacity: 0; }
 .nav-toggle-open span:nth-child(3){ transform: translateY(-6px) rotate(-45deg); }
 
-/* Main container */
+/* =========================
+   Main container
+   ========================= */
 main.container{
   width: min(1100px, 92vw);
   margin:18px auto 22px;
@@ -119,9 +133,9 @@ main.container{
   gap:14px;
 }
 
-.hidden{ display:none !important; }
-
-/* Inputs */
+/* =========================
+   Inputs
+   ========================= */
 input{
   width:100%;
   padding:14px 14px;
@@ -139,7 +153,9 @@ input:focus{
   box-shadow: 0 0 0 4px rgba(255,204,0,.12);
 }
 
-/* Buttons */
+/* =========================
+   Buttons
+   ========================= */
 button{
   padding:13px 14px;
   font-size:1.05rem;
@@ -192,7 +208,9 @@ button{
   color: rgba(255,140,0,1);
 }
 
-/* Footer */
+/* =========================
+   Footer
+   ========================= */
 footer{
   margin-top:auto;
   text-align:center;
@@ -200,7 +218,9 @@ footer{
   color: rgba(243,244,246,.55);
 }
 
-/* Toast */
+/* =========================
+   Toast
+   ========================= */
 .toast{
   position: fixed;
   left: 50%;
@@ -216,7 +236,180 @@ footer{
   font-weight: 900;
 }
 
-/* HOME */
+/* =========================
+   INDEX — Resultado simple
+   ========================= */
+#result{
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+#skuName{
+  font-weight: 900;
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+
+#fullEan{
+  color: rgba(243,244,246,.65);
+  margin-top: 6px;
+  word-break: break-all;
+}
+
+#barcode{
+  margin: 12px auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Imagen index: controlada (NO gigante) */
+#skuImage{
+  width: 100%;
+  max-width: 320px;
+  max-height: 220px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 12px auto 0;
+  border-radius: 14px;
+  background: rgba(255,255,255,.92);
+  padding: 10px;
+}
+@media (min-width: 900px){
+  #skuImage{ max-width: 300px; max-height: 200px; }
+}
+@media (max-width: 480px){
+  #skuImage{ max-height: 180px; padding: 8px; }
+}
+
+/* =========================
+   CAROUSEL (multi + buscar.html)
+   ========================= */
+.carousel{
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.carousel-track-container{ width: 100%; }
+.carousel-track{ list-style: none; margin: 0; padding: 0; }
+
+.carousel-btn{
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  color: var(--brand);
+  font-size: 1.6rem;
+  display: grid;
+  place-items: center;
+}
+.carousel-btn:hover{
+  border-color: rgba(255,204,0,.35);
+  background: rgba(255,204,0,.10);
+}
+
+.carousel-counter{
+  margin-top: 10px;
+  text-align: center;
+  color: rgba(243,244,246,.65);
+  font-size: .95rem;
+  font-weight: 800;
+}
+
+/* Card */
+.result-item{
+  display: none;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 16px;
+  padding: 16px;            /* aire */
+  gap: 14px;                /* aire */
+  animation: fadeInUp .18s ease-out;
+}
+.result-item.active{
+  display: flex;
+  flex-direction: column;
+}
+
+.result-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.result-name{
+  font-weight: 900;
+  color: var(--text);
+  font-size: 1.02rem;
+  line-height: 1.25;
+}
+
+.result-main{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+
+/* Imagen (buscar + multi): grande y prolija */
+.result-image-wrapper img{
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: rgba(255,255,255,.95);
+  padding: 10px;
+  display: block;
+}
+
+.no-image{
+  width: 100%;
+  height: 220px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  border: 1px dashed rgba(255,255,255,.18);
+  display: grid;
+  place-items: center;
+  color: rgba(243,244,246,.65);
+  font-size: .85rem;
+  text-align: center;
+  padding: 8px;
+}
+
+.result-barcode-wrapper{
+  background: #fff;
+  border-radius: 16px;
+  padding: 12px;
+  width: 100%;
+  overflow: hidden;
+}
+.result-barcode{
+  width: 100%;
+  height: 110px;
+}
+
+.result-ean{
+  color: rgba(243,244,246,.70);
+  font-size: .95rem;
+  line-height: 1.25;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* =========================
+   HOME
+   ========================= */
 main.container.home{ gap:18px; }
 
 .home-hero{
@@ -358,7 +551,6 @@ main.container.home{ gap:18px; }
   border-color: rgba(255,140,0,.65);
   box-shadow: 0 12px 30px rgba(255,140,0,.25);
 }
-
 .p-card:hover::after{ opacity:1; }
 
 .p-card__media{
@@ -373,9 +565,11 @@ main.container.home{ gap:18px; }
 }
 
 .p-card__media img{
-  max-width:100%;
-  max-height:100%;
-  object-fit:contain;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display:block;
+  padding:10px;
   transition: transform 220ms ease;
 }
 
@@ -400,8 +594,7 @@ main.container.home{ gap:18px; }
   height:2.4em;
   overflow:hidden;
 }
-
-.p-card:hover .p-card__name{ color: rgba(255,140,0,1); }
+.p-card:hover .p-card__name{ color: var(--accent); }
 
 .p-card__ean{
   color: rgba(243,244,246,.62);
@@ -409,7 +602,9 @@ main.container.home{ gap:18px; }
   font-size:.9rem;
 }
 
-/* Drawer overlay + drawer FIXED (esto es lo que te faltaba) */
+/* =========================
+   Drawer (Home) — FIX scroll
+   ========================= */
 .drawer-overlay{
   position: fixed;
   inset: 0;
@@ -431,7 +626,7 @@ main.container.home{ gap:18px; }
 
   display:flex;
   flex-direction:column;
-  overflow:hidden; /* scroll solo adentro */
+  overflow:hidden;
 }
 
 .drawer-head{
@@ -463,7 +658,6 @@ main.container.home{ gap:18px; }
   gap:12px;
 }
 
-/* scroll bar lindo */
 .drawer-body::-webkit-scrollbar{ width:10px; }
 .drawer-body::-webkit-scrollbar-thumb{
   background: rgba(255,255,255,.14);
@@ -481,9 +675,11 @@ main.container.home{ gap:18px; }
 
 .drawer-media img{
   width: 100%;
-  max-height: 220px;
+  max-height: 240px;
+  height: auto;
   object-fit: contain;
   border-radius: 12px;
+  display:block;
 }
 
 .drawer-row{
@@ -509,18 +705,18 @@ main.container.home{ gap:18px; }
   text-align:right;
 }
 
-.drawer-actions{
-  display:flex;
-  gap:10px;
-}
+.drawer-actions{ display:flex; gap:10px; }
 
 .drawer-barcode{
   border-radius: 16px;
   background: #fff;
   padding: 10px;
+  overflow:hidden;
 }
 
-/* Modal */
+/* =========================
+   Modal
+   ========================= */
 .modal{
   position: fixed;
   inset: 0;
@@ -569,148 +765,22 @@ main.container.home{ gap:18px; }
 }
 
 /* =========================
-   FIX: imágenes demasiado grandes
+   Anim
    ========================= */
-
-/* INDEX (resultado simple) */
-#skuImage {
-  width: 100%;
-  max-width: 320px;      /* PC: no más de 320px de ancho */
-  height: auto;
-  max-height: 220px;     /* límite vertical */
-  object-fit: contain;
-  display: block;
-  margin: 12px auto 0;
-  border-radius: 14px;
-  background: rgba(255,255,255,.92);
-  padding: 10px;
-}
-
-/* Si querés un toque más chico en PC grande */
-@media (min-width: 900px) {
-  #skuImage {
-    max-width: 300px;
-    max-height: 200px;
-  }
-}
-
-/* Mobile: un poco más bajo para que no tape el barcode */
-@media (max-width: 480px) {
-  #skuImage {
-    max-width: 100%;
-    max-height: 180px;
-    padding: 8px;
-  }
-}
-
-/* RESULTADOS (buscar.html y multi carousel) */
-.result-image-wrapper img {
-  width: 86px;
-  height: 86px;
-  object-fit: contain;
-  border-radius: 12px;
-  background: rgba(255,255,255,.92);
-  padding: 6px;
-}
-
-/* HOME grid cards: asegurar cuadrado sin agrandarse */
-.p-card__media {
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-}
-
-.p-card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-  padding: 10px;
-}
-
-/* DRAWER (home.html) */
-.drawer-media img {
-  width: 100%;
-  max-height: 240px;  /* antes podía crecer demasiado */
-  height: auto;
-  object-fit: contain;
-  border-radius: 12px;
+@keyframes fadeInUp{
+  from{ opacity: 0; transform: translateY(6px); }
+  to{ opacity: 1; transform: translateY(0); }
 }
 
 /* =========================
-   Buscar (Carousel rápido)
+   Responsive
    ========================= */
-.search-carousel{
-  width: 100%;
-  margin-top: 12px;
-  padding: 14px;
-  border-radius: 16px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.10);
-}
-
-.search-carousel__head{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.search-carousel__title{
-  font-weight: 900;
-  color: var(--text);
-  font-size: 1rem;
-}
-
-.search-carousel__counter{
-  color: rgba(243,244,246,.65);
-  font-weight: 800;
-}
-
-.search-carousel__frame{
-  display: grid;
-  grid-template-columns: 52px 1fr 52px;
-  gap: 10px;
-  align-items: center;
-}
-
-.search-carousel__stage{
-  min-height: 280px;
-}
-
-/* ✅ imagen controlada (no gigante) */
-.result-image-wrapper img{
-  width: 100%;
-  height: 180px;        /* PC */
-  object-fit: contain;
-  border-radius: 14px;
-  background: rgba(255,255,255,.92);
-  padding: 10px;
-}
-
-/* Mobile */
-@media (max-width: 720px){
-  .result-image-wrapper img{
-    height: 160px;
-  }
-}
-
-/* Mobile drawer: todavía más controlado */
-@media (max-width: 600px) {
-  .drawer-media img {
-    max-height: 200px;
-  }
-}
-
-/* Responsive */
 @media (max-width: 980px){
   .home-grid{ grid-template-columns: repeat(4, 1fr); }
 }
 
 @media (max-width: 720px){
-  .home-hero{ grid-template-columns: 1fr; }
-  .home-grid{ grid-template-columns: repeat(2, 1fr); }
-
+  /* nav */
   .nav{ display:none; }
   .nav-toggle{ display:flex; }
 
@@ -734,4 +804,26 @@ main.container.home{ gap:18px; }
     background: rgba(255,255,255,.05);
     border:1px solid rgba(255,255,255,.08);
   }
+
+  /* layout */
+  main.container{ padding: 18px; }
+  .home-hero{ grid-template-columns: 1fr; }
+  .home-grid{ grid-template-columns: repeat(2, 1fr); }
+
+  /* results mobile */
+  .result-image-wrapper img,
+  .no-image{ height: 260px; }
+
+  .result-barcode{ height: 120px; }
+
+  .result-header .btn-mini{ white-space: nowrap; }
+}
+
+@media (max-width: 600px){
+  .drawer-media img{ max-height: 200px; }
+}
+
+@media (max-width: 520px){
+  .carousel{ grid-template-columns: 44px 1fr 44px; }
+  .carousel-btn{ width: 44px; height: 44px; border-radius: 14px; }
 }
