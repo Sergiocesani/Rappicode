@@ -226,16 +226,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    const isDigits = /^\d{6,}$/.test(term);
-    let results = [];
+    const onlyDigits = /^\d+$/.test(term);
+let results = [];
 
-    if (isDigits) {
-      results = store.inventory
-        .filter((x) => String(x.ean ?? "").includes(term))
-        .slice(0, 60);
-    } else {
-      results = store.searchByName(term, { limit: 60 });
-    }
+if (onlyDigits) {
+  // EXACTAMENTE 6 => últimos 6 o short (más útil en operación)
+  if (/^\d{6}$/.test(term)) {
+    const m = [...store.findByShort(term), ...store.findByLast6(term)];
+    const uniq = new Map();
+    for (const it of m) uniq.set(String(it?.ean ?? ""), it);
+    results = [...uniq.values()].slice(0, 60);
+  }
+  // 8 o 13 => EAN exacto
+  else if (/^\d{8}$/.test(term) || /^\d{13}$/.test(term)) {
+    results = store.inventory.filter((x) => String(x?.ean ?? "") === term).slice(0, 60);
+  }
+  // otros => includes
+  else {
+    results = store.inventory.filter((x) => String(x?.ean ?? "").includes(term)).slice(0, 60);
+  }
+} else {
+  results = store.searchByName(term, { limit: 60 });
+}
 
     if (els.count()) els.count().textContent = `${results.length} resultados`;
     renderGrid(results, store);

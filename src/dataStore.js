@@ -27,7 +27,6 @@ export async function getStore() {
     const inventory = Array.isArray(inventoryRaw) ? inventoryRaw : [];
     const images = Array.isArray(imagesRaw) ? imagesRaw : [];
 
-    // Map: ean -> image
     const imageByEan = new Map();
     for (const it of images) {
       const ean = String(it?.ean ?? "").trim();
@@ -35,15 +34,14 @@ export async function getStore() {
       if (ean && img) imageByEan.set(ean, img);
     }
 
-    // Index para búsqueda por nombre
     const nameIndex = inventory.map((it) => ({
       ref: it,
       nameNorm: normalize(it?.name),
     }));
 
-    // Index para short (si existe) y last6
-    const byShort = new Map(); // short -> array items
-    const byLast6 = new Map(); // last6 -> array items
+    // indices
+    const byShort = new Map();
+    const byLast6 = new Map();
 
     for (const it of inventory) {
       const eanStr = String(it?.ean ?? "").trim();
@@ -53,7 +51,6 @@ export async function getStore() {
         if (!byShort.has(short)) byShort.set(short, []);
         byShort.get(short).push(it);
       }
-
       if (eanStr) {
         const last6 = eanStr.slice(-6);
         if (last6) {
@@ -63,28 +60,25 @@ export async function getStore() {
       }
     }
 
-    return {
+    // store base
+    const store = {
       inventory,
       images,
 
-      // --- imágenes ---
       getImage(ean) {
         return imageByEan.get(String(ean ?? "").trim()) || "";
       },
 
-      // --- compat: lo que te está rompiendo en Netlify ---
       findByShort(short6) {
         const key = String(short6 ?? "").trim();
         return byShort.get(key) || [];
       },
 
-      // --- helper nuevo: últimos 6 ---
       findByLast6(last6) {
         const key = String(last6 ?? "").trim();
         return byLast6.get(key) || [];
       },
 
-      // --- búsqueda por nombre ---
       searchByName(query, { limit = 60 } = {}) {
         const q = normalize(query);
         if (!q) return [];
@@ -99,6 +93,35 @@ export async function getStore() {
         return out;
       },
     };
+
+    // ✅ GUARDRAIL: si Netlify sirvió una versión vieja o te queda cache,
+    // garantizamos que existan estos métodos igual.
+    if (typeof store.findByShort !== "function") {
+      store.findByShort = (short6) =>
+        inventory.filter((x) => String(x?.short ?? "").trim() === String(short6 ?? "").trim());
+    }
+
+    if (typeof store.findByLast6 !== "function") {
+      store.findByLast6 = (last6) =>
+        inventory.filter((x) => String(x?.ean ?? "").trim().slice(-6) === String(last6 ?? "").trim());
+    }
+
+    if (typeof store.searchByName !== "function") {
+      store.searchByName = (q, { limit = 60 } = {}) => {
+        const qq = normalize(q);
+        if (!qq) return [];
+        const out = [];
+        for (const it of inventory) {
+          if (normalize(it?.name).includes(qq)) {
+            out.push(it);
+            if (out.length >= limit) break;
+          }
+        }
+        return out;
+      };
+    }
+
+    return store;
   })();
 
   return storePromise;
