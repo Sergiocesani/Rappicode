@@ -1,8 +1,8 @@
-// src/dataStore.js
+// src/dataStore.js (FAST)
 let storePromise = null;
 
 async function loadJson(path) {
-  const res = await fetch(path, { cache: "no-store" });
+  const res = await fetch(path, { cache: "force-cache" }); // ✅ deja cachear en Netlify
   if (!res.ok) throw new Error(`No pude cargar ${path} (${res.status})`);
   return res.json();
 }
@@ -27,6 +27,7 @@ export async function getStore() {
     const inventory = Array.isArray(inventoryRaw) ? inventoryRaw : [];
     const images = Array.isArray(imagesRaw) ? imagesRaw : [];
 
+    // ---- image map
     const imageByEan = new Map();
     for (const it of images) {
       const ean = String(it?.ean ?? "").trim();
@@ -34,23 +35,23 @@ export async function getStore() {
       if (ean && img) imageByEan.set(ean, img);
     }
 
-    const nameIndex = inventory.map((it) => ({
-      ref: it,
-      nameNorm: normalize(it?.name),
-    }));
-
-    // indices
-    const byShort = new Map();
-    const byLast6 = new Map();
+    // ---- indexes
+    const byEan = new Map();     // ean -> item
+    const byShort = new Map();   // short -> items[]
+    const byLast6 = new Map();   // last6 -> items[]
+    const nameIndex = [];        // [{ref, nameNorm}]
 
     for (const it of inventory) {
       const eanStr = String(it?.ean ?? "").trim();
       const short = String(it?.short ?? "").trim();
 
+      if (eanStr && !byEan.has(eanStr)) byEan.set(eanStr, it);
+
       if (short) {
         if (!byShort.has(short)) byShort.set(short, []);
         byShort.get(short).push(it);
       }
+
       if (eanStr) {
         const last6 = eanStr.slice(-6);
         if (last6) {
@@ -58,30 +59,51 @@ export async function getStore() {
           byLast6.get(last6).push(it);
         }
       }
+
+      nameIndex.push({ ref: it, nameNorm: normalize(it?.name) });
     }
 
-    // store base
+    // Cache simple por query (acelera tipeo incremental)
+    const nameCache = new Map(); // q -> results[]
+
     const store = {
       inventory,
-      images,
 
       getImage(ean) {
         return imageByEan.get(String(ean ?? "").trim()) || "";
       },
 
       findByShort(short6) {
-        const key = String(short6 ?? "").trim();
-        return byShort.get(key) || [];
+        return byShort.get(String(short6 ?? "").trim()) || [];
       },
 
       findByLast6(last6) {
-        const key = String(last6 ?? "").trim();
-        return byLast6.get(key) || [];
+        return byLast6.get(String(last6 ?? "").trim()) || [];
+      },
+
+      findByEanExact(ean) {
+        return byEan.get(String(ean ?? "").trim()) || null;
+      },
+
+      searchByEanIncludes(part, { limit = 60 } = {}) {
+        const t = String(part ?? "").trim();
+        if (!t) return [];
+        const out = [];
+        for (const it of inventory) {
+          const e = String(it?.ean ?? "");
+          if (e.includes(t)) {
+            out.push(it);
+            if (out.length >= limit) break;
+          }
+        }
+        return out;
       },
 
       searchByName(query, { limit = 60 } = {}) {
         const q = normalize(query);
         if (!q) return [];
+
+        if (nameCache.has(q)) return nameCache.get(q).slice(0, limit);
 
         const out = [];
         for (const row of nameIndex) {
@@ -90,36 +112,10 @@ export async function getStore() {
             if (out.length >= limit) break;
           }
         }
+        nameCache.set(q, out);
         return out;
       },
     };
-
-    // ✅ GUARDRAIL: si Netlify sirvió una versión vieja o te queda cache,
-    // garantizamos que existan estos métodos igual.
-    if (typeof store.findByShort !== "function") {
-      store.findByShort = (short6) =>
-        inventory.filter((x) => String(x?.short ?? "").trim() === String(short6 ?? "").trim());
-    }
-
-    if (typeof store.findByLast6 !== "function") {
-      store.findByLast6 = (last6) =>
-        inventory.filter((x) => String(x?.ean ?? "").trim().slice(-6) === String(last6 ?? "").trim());
-    }
-
-    if (typeof store.searchByName !== "function") {
-      store.searchByName = (q, { limit = 60 } = {}) => {
-        const qq = normalize(q);
-        if (!qq) return [];
-        const out = [];
-        for (const it of inventory) {
-          if (normalize(it?.name).includes(qq)) {
-            out.push(it);
-            if (out.length >= limit) break;
-          }
-        }
-        return out;
-      };
-    }
 
     return store;
   })();
