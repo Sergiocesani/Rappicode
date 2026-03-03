@@ -1,43 +1,76 @@
 /* =========================
-   TurboScan — styles.css (LIMPIO)
+   TurboScan — styles.css (LIMPIO + PRO)
    - sin reglas duplicadas
-   - imágenes controladas (index / buscar / home / drawer)
-   - carousel + mobile spacing
+   - sin scroll lateral en mobile
+   - EAN ultra legible (pill + contraste)
+   - index / buscar (carousel) / home / drawer
    ========================= */
 
 /* Reset */
 *{ margin:0; padding:0; box-sizing:border-box; }
 
 :root{
-  --bg:#0b0b0f;
-  --panel: rgba(255,255,255,.06);
-  --panel2: rgba(255,255,255,.09);
-  --border: rgba(255,255,255,.14);
+  /* Base */
+  --bg:#0a0b10;
+  --surface: rgba(255,255,255,.06);
+  --surface2: rgba(255,255,255,.09);
+  --border: rgba(255,255,255,.12);
   --text:#f3f4f6;
-  --muted: rgba(243,244,246,.72);
-  --brand:#ffcc00;
-  --accent:#ff8c00; /* hover naranja */
-  --shadow: 0 10px 30px rgba(0,0,0,.45);
+  --muted: rgba(243,244,246,.70);
+
+  /* Brand */
+  --brand:#ffcc00;         /* amarillo Turbo */
+  --accent:#ff8c00;        /* hover naranja */
+  --brand2:#7c3aed;        /* violeta pro */
+  --cyan:#22d3ee;          /* cian pro */
+
+  /* Effects */
+  --shadow: 0 14px 34px rgba(0,0,0,.50);
   --radius:16px;
   --radius-sm:12px;
 }
 
-html{ font-size:16px; scroll-behavior:smooth; }
+html{
+  font-size:16px;
+  scroll-behavior:smooth;
+  width:100%;
+  max-width:100%;
+}
 
 body{
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   background:
-    radial-gradient(1200px 800px at 20% 0%, rgba(255,204,0,.12), transparent 55%),
-    radial-gradient(900px 700px at 100% 10%, rgba(255,77,79,.14), transparent 50%),
+    radial-gradient(1200px 800px at 20% 0%, rgba(255,204,0,.10), transparent 55%),
+    radial-gradient(900px 700px at 100% 10%, rgba(124,58,237,.14), transparent 55%),
+    radial-gradient(900px 700px at 85% 85%, rgba(34,211,238,.10), transparent 55%),
     var(--bg);
   color:var(--text);
   min-height:100vh;
   display:flex;
   flex-direction:column;
+
+  /* ✅ evita scroll lateral */
+  width:100%;
+  max-width:100%;
   overflow-x:hidden;
 }
 
 .hidden{ display:none !important; }
+
+/* ✅ blindaje general anti “desborde” */
+img, svg{
+  max-width:100%;
+  height:auto;
+  display:block;
+}
+main.container,
+.header,
+.nav.nav-open,
+.drawer,
+.modal,
+.drawer-overlay{
+  max-width:100%;
+}
 
 /* =========================
    Header / Nav
@@ -50,7 +83,7 @@ body{
   align-items:center;
   justify-content:space-between;
   padding:14px 16px;
-  background: rgba(11,11,15,.78);
+  background: rgba(10,11,16,.80);
   backdrop-filter: blur(10px);
   border-bottom:1px solid rgba(255,255,255,.08);
 }
@@ -76,7 +109,7 @@ body{
 .nav a{
   color:var(--text);
   text-decoration:none;
-  font-weight:800;
+  font-weight:900;
   font-size:.95rem;
   padding:8px 12px;
   border-radius:999px;
@@ -85,7 +118,7 @@ body{
 }
 
 .nav a:hover{
-  background: rgba(255,204,0,.16);
+  background: rgba(255,204,0,.14);
   color: var(--brand);
 }
 
@@ -125,7 +158,7 @@ main.container{
   margin:18px auto 22px;
   padding:22px;
   border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
   border:1px solid rgba(255,255,255,.10);
   box-shadow: var(--shadow);
   display:flex;
@@ -142,15 +175,15 @@ input{
   font-size:1.05rem;
   border-radius:14px;
   border:1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,.35);
+  background: rgba(0,0,0,.32);
   color:var(--text);
   outline:none;
   transition:180ms ease;
 }
 input::placeholder{ color: rgba(243,244,246,.55); }
 input:focus{
-  border-color: rgba(255,204,0,.55);
-  box-shadow: 0 0 0 4px rgba(255,204,0,.12);
+  border-color: rgba(34,211,238,.55);
+  box-shadow: 0 0 0 4px rgba(34,211,238,.12);
 }
 
 /* =========================
@@ -173,6 +206,7 @@ button{
   background: linear-gradient(180deg, rgba(255,204,0,1), rgba(255,171,0,1));
   color:#111;
 }
+.btn-primary:hover{ transform: translateY(-1px); }
 
 .btn-ghost{
   display:inline-flex;
@@ -189,8 +223,8 @@ button{
   transition:180ms ease;
 }
 .btn-ghost:hover{
-  border-color: rgba(255,204,0,.35);
-  color: var(--brand);
+  border-color: rgba(34,211,238,.35);
+  color: var(--cyan);
 }
 
 .btn-mini{
@@ -200,7 +234,7 @@ button{
   background: rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.12);
   color: var(--text);
-  font-weight:800;
+  font-weight:900;
   font-size:.9rem;
 }
 .btn-mini:hover{
@@ -226,7 +260,7 @@ footer{
   left: 50%;
   bottom: 18px;
   transform: translateX(-50%);
-  background: rgba(10,10,14,.9);
+  background: rgba(10,10,14,.92);
   border: 1px solid rgba(255,255,255,.12);
   color: var(--text);
   padding: 10px 14px;
@@ -250,25 +284,36 @@ footer{
 #skuName{
   font-weight: 900;
   font-size: 1.05rem;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
+/* ✅ EAN PRO (legible para cámara) */
 #fullEan{
-  color: rgba(243,244,246,.65);
-  margin-top: 6px;
-  word-break: break-all;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(34,211,238,.25);
+  background:
+    linear-gradient(180deg, rgba(34,211,238,.10), rgba(124,58,237,.08)),
+    rgba(255,255,255,.04);
+  color: rgba(243,244,246,.95);
+  font-weight: 1000;
+  letter-spacing: .6px;
+  font-size: 1.15rem;
+  text-align: center;
+  overflow-wrap:anywhere;
+  box-shadow: 0 10px 28px rgba(34,211,238,.10);
 }
 
 #barcode{
-  margin: 12px auto;
+  margin: 12px auto 0;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 10px;
   width: 100%;
   overflow: hidden;
 }
 
-/* Imagen index: controlada (NO gigante) */
 #skuImage{
   width: 100%;
   max-width: 320px;
@@ -289,18 +334,18 @@ footer{
 }
 
 /* =========================
-   CAROUSEL (multi + buscar.html)
+   CAROUSEL (multiResult + buscar.html clásico)
    ========================= */
 .carousel{
   display: grid;
   grid-template-columns: 52px 1fr 52px;
   align-items: center;
   gap: 10px;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
-.carousel-track-container{ width: 100%; }
-.carousel-track{ list-style: none; margin: 0; padding: 0; }
+.carousel-track-container{ width: 100%; min-width:0; }
+.carousel-track{ list-style: none; margin: 0; padding: 0; min-width:0; }
 
 .carousel-btn{
   width: 52px;
@@ -312,10 +357,14 @@ footer{
   font-size: 1.6rem;
   display: grid;
   place-items: center;
+
+  /* ✅ nunca empuja el viewport */
+  min-width: 52px;
 }
 .carousel-btn:hover{
-  border-color: rgba(255,204,0,.35);
-  background: rgba(255,204,0,.10);
+  border-color: rgba(34,211,238,.35);
+  background: rgba(34,211,238,.10);
+  color: var(--cyan);
 }
 
 .carousel-counter{
@@ -323,17 +372,16 @@ footer{
   text-align: center;
   color: rgba(243,244,246,.65);
   font-size: .95rem;
-  font-weight: 800;
+  font-weight: 900;
 }
 
-/* Card */
 .result-item{
   display: none;
   background: rgba(255,255,255,.05);
   border: 1px solid rgba(255,255,255,.10);
   border-radius: 16px;
-  padding: 16px;            /* aire */
-  gap: 14px;                /* aire */
+  padding: 16px;
+  gap: 14px;
   animation: fadeInUp .18s ease-out;
 }
 .result-item.active{
@@ -342,10 +390,10 @@ footer{
 }
 
 .result-header{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
 }
 
 .result-name{
@@ -357,12 +405,11 @@ footer{
 
 .result-main{
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr; /* default apilado */
   gap: 14px;
   align-items: stretch;
 }
 
-/* Imagen (buscar + multi): grande y prolija */
 .result-image-wrapper img{
   width: 100%;
   height: 220px;
@@ -370,7 +417,6 @@ footer{
   border-radius: 16px;
   background: rgba(255,255,255,.95);
   padding: 10px;
-  display: block;
 }
 
 .no-image{
@@ -394,17 +440,112 @@ footer{
   width: 100%;
   overflow: hidden;
 }
+
 .result-barcode{
-  width: 100%;
+  width: 100% !important;
   height: 110px;
+  max-width: 100% !important;
 }
 
 .result-ean{
-  color: rgba(243,244,246,.70);
-  font-size: .95rem;
-  line-height: 1.25;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(124,58,237,.22);
+  background: rgba(255,255,255,.04);
+  color: rgba(243,244,246,.92);
+  font-weight: 1000;
+  letter-spacing: .5px;
+  font-size: 1rem;
   text-align: center;
-  word-break: break-all;
+  overflow-wrap:anywhere;
+}
+
+/* =========================
+   Buscar.html — layout PRO (flechas arriba, nombre, imagen|barcode)
+   Requiere que tu JS cree estas clases: search-carousel__*
+   ========================= */
+.search-carousel{
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.10);
+  overflow:hidden; /* ✅ evita scroll lateral por cualquier cosa interna */
+}
+
+.search-carousel__head{
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.search-carousel__actions{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.search-carousel__counter{
+  color: rgba(243,244,246,.70);
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.search-carousel__name{
+  font-weight: 1000;
+  color: var(--text);
+  text-align: center;
+  margin: 8px 0 12px;
+  line-height: 1.25;
+}
+
+/* ✅ 2 columnas en desktop */
+.search-carousel__body{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+/* Imagen */
+.search-carousel__img img{
+  width: 100%;
+  height: 240px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: rgba(255,255,255,.95);
+  padding: 10px;
+}
+
+/* Barcode + EAN */
+.search-carousel__barcode .result-barcode-wrapper{
+  border-radius: 16px;
+  background: #fff;
+  padding: 12px;
+  overflow: hidden;
+}
+
+/* ✅ EAN más “hermoso” y MUY legible */
+.search-carousel__barcode .result-ean{
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(34,211,238,.25);
+  background:
+    linear-gradient(180deg, rgba(34,211,238,.12), rgba(124,58,237,.10)),
+    rgba(255,255,255,.04);
+  color: rgba(243,244,246,.96);
+  font-weight: 1100;
+  letter-spacing: .8px;
+  font-size: 1.10rem;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(34,211,238,.10);
 }
 
 /* =========================
@@ -429,7 +570,7 @@ main.container.home{ gap:18px; }
 .home-subtitle{
   margin-top:6px;
   color: rgba(243,244,246,.72);
-  font-weight:700;
+  font-weight:800;
 }
 
 .home-actions{
@@ -459,13 +600,13 @@ main.container.home{ gap:18px; }
   background: rgba(255,255,255,.07);
   border:1px solid rgba(255,255,255,.10);
   color: var(--text);
-  font-weight:900;
+  font-weight:1000;
   font-size:.9rem;
 }
 
 .home-pill--muted{
   color: rgba(243,244,246,.6);
-  font-weight:800;
+  font-weight:900;
 }
 
 .home-card{
@@ -477,7 +618,7 @@ main.container.home{ gap:18px; }
 }
 
 .home-card__title{
-  font-weight: 900;
+  font-weight: 1000;
   color: var(--brand);
   margin-bottom:8px;
 }
@@ -485,7 +626,7 @@ main.container.home{ gap:18px; }
 .home-card__text{
   color: rgba(243,244,246,.7);
   line-height:1.6;
-  font-weight:700;
+  font-weight:800;
 }
 
 .home-grid-wrap{
@@ -503,7 +644,7 @@ main.container.home{ gap:18px; }
 
 .home-grid-title{
   font-size:1.1rem;
-  font-weight:900;
+  font-weight:1000;
 }
 
 .home-grid{
@@ -540,7 +681,7 @@ main.container.home{ gap:18px; }
   position:absolute;
   inset:0;
   border-radius:16px;
-  background: radial-gradient(circle at center, rgba(255,140,0,.18), transparent 70%);
+  background: radial-gradient(circle at center, rgba(34,211,238,.14), transparent 70%);
   opacity:0;
   transition: opacity 220ms ease;
   pointer-events:none;
@@ -548,8 +689,8 @@ main.container.home{ gap:18px; }
 
 .p-card:hover{
   transform: translateY(-6px);
-  border-color: rgba(255,140,0,.65);
-  box-shadow: 0 12px 30px rgba(255,140,0,.25);
+  border-color: rgba(34,211,238,.45);
+  box-shadow: 0 12px 30px rgba(34,211,238,.16);
 }
 .p-card:hover::after{ opacity:1; }
 
@@ -568,17 +709,13 @@ main.container.home{ gap:18px; }
   width: 100%;
   height: 100%;
   object-fit: contain;
-  display:block;
   padding:10px;
   transition: transform 220ms ease;
 }
 
 .p-card:hover .p-card__media img{ transform: scale(1.08); }
 
-.p-card__noimg{
-  color: rgba(0,0,0,.55);
-  font-weight: 900;
-}
+.p-card__noimg{ color: rgba(0,0,0,.55); font-weight: 900; }
 
 .p-card__body{
   padding: 10px 10px 12px;
@@ -587,23 +724,23 @@ main.container.home{ gap:18px; }
 }
 
 .p-card__name{
-  font-weight:900;
+  font-weight:1000;
   color: var(--text);
   font-size:.95rem;
   line-height:1.2;
   height:2.4em;
   overflow:hidden;
 }
-.p-card:hover .p-card__name{ color: var(--accent); }
+.p-card:hover .p-card__name{ color: var(--cyan); }
 
 .p-card__ean{
   color: rgba(243,244,246,.62);
-  font-weight:800;
+  font-weight:900;
   font-size:.9rem;
 }
 
 /* =========================
-   Drawer (Home) — FIX scroll
+   Drawer (Home)
    ========================= */
 .drawer-overlay{
   position: fixed;
@@ -616,14 +753,14 @@ main.container.home{ gap:18px; }
   position: fixed;
   top: 0;
   right: 0;
+  left: auto;
   height: 100vh;
   width: min(420px, 92vw);
   z-index: 9999;
-  background: rgba(11,11,15,.95);
+  background: rgba(10,11,16,.96);
   border-left: 1px solid rgba(255,255,255,.10);
   box-shadow: 0 20px 60px rgba(0,0,0,.55);
   padding: 14px;
-
   display:flex;
   flex-direction:column;
   overflow:hidden;
@@ -634,10 +771,9 @@ main.container.home{ gap:18px; }
   position: sticky;
   top: 0;
   z-index: 2;
-  background: rgba(11,11,15,.96);
+  background: rgba(10,11,16,.97);
   padding-bottom: 10px;
   border-bottom: 1px solid rgba(255,255,255,.10);
-
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -645,7 +781,7 @@ main.container.home{ gap:18px; }
 }
 
 .drawer-title{
-  font-weight: 900;
+  font-weight: 1000;
   color: var(--brand);
   font-size: 1.05rem;
 }
@@ -657,14 +793,13 @@ main.container.home{ gap:18px; }
   display:grid;
   gap:12px;
 }
-
 .drawer-body::-webkit-scrollbar{ width:10px; }
 .drawer-body::-webkit-scrollbar-thumb{
   background: rgba(255,255,255,.14);
   border-radius: 999px;
 }
 .drawer-body::-webkit-scrollbar-thumb:hover{
-  background: rgba(255,140,0,.25);
+  background: rgba(34,211,238,.22);
 }
 
 .drawer-media{
@@ -676,10 +811,8 @@ main.container.home{ gap:18px; }
 .drawer-media img{
   width: 100%;
   max-height: 240px;
-  height: auto;
   object-fit: contain;
   border-radius: 12px;
-  display:block;
 }
 
 .drawer-row{
@@ -693,15 +826,11 @@ main.container.home{ gap:18px; }
   border:1px solid rgba(255,255,255,.10);
 }
 
-.drawer-label{
-  color: rgba(243,244,246,.65);
-  font-weight: 900;
-}
-
+.drawer-label{ color: rgba(243,244,246,.65); font-weight: 1000; }
 .drawer-value{
   color: var(--text);
-  font-weight: 900;
-  word-break: break-all;
+  font-weight: 1000;
+  overflow-wrap:anywhere;
   text-align:right;
 }
 
@@ -730,7 +859,7 @@ main.container.home{ gap:18px; }
 .modal-card{
   width: min(560px, 96vw);
   border-radius: 18px;
-  background: rgba(11,11,15,.96);
+  background: rgba(10,11,16,.97);
   border: 1px solid rgba(255,255,255,.12);
   box-shadow: 0 20px 60px rgba(0,0,0,.55);
   padding: 14px;
@@ -745,17 +874,13 @@ main.container.home{ gap:18px; }
   gap:10px;
 }
 
-.modal-title{
-  font-weight: 900;
-  color: var(--brand);
-}
+.modal-title{ font-weight: 1000; color: var(--brand); }
 
 .modal-text{
-  color: rgba(243,244,246,.8);
-  font-weight: 800;
+  color: rgba(243,244,246,.82);
+  font-weight: 850;
   line-height: 1.6;
 }
-
 .modal-text--muted{ color: rgba(243,244,246,.55); }
 
 .modal-actions{
@@ -770,166 +895,6 @@ main.container.home{ gap:18px; }
 @keyframes fadeInUp{
   from{ opacity: 0; transform: translateY(6px); }
   to{ opacity: 1; transform: translateY(0); }
-}
-
-/* 1) Blindaje general */
-html, body{
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-/* 2) Todo lo que sea layout no puede exceder viewport */
-main.container,
-.header,
-.nav.nav-open,
-.drawer,
-.modal,
-.drawer-overlay{
-  max-width: 100%;
-}
-
-/* 3) Imágenes / SVG / barcode: nunca más anchos que el contenedor */
-img, svg{
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* 4) Barcode (svg) a veces se "pasa" por width interno */
-#barcode,
-.result-barcode,
-#drawerBarcode{
-  width: 100% !important;
-  max-width: 100% !important;
-  overflow: hidden;
-}
-
-/* Flecha derecha en header junto a Copiar */
-.result-header-right{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.result-header{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-}
-
-/* ===== Buscar.html — layout como pediste ===== */
-
-.search-carousel{
-  width: 100%;
-  margin-top: 12px;
-  padding: 14px;
-  border-radius: 16px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.10);
-}
-
-/* Fila 1: flecha izq / centro / flecha der */
-.search-carousel__head{
-  display: grid;
-  grid-template-columns: 52px 1fr 52px;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.search-carousel__actions{
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* counter a la izq, copiar a la der */
-  gap: 10px;
-  min-width: 0;
-}
-
-.search-carousel__counter{
-  color: rgba(243,244,246,.70);
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-/* Fila 2: nombre centrado */
-.search-carousel__name{
-  font-weight: 900;
-  color: var(--text);
-  text-align: center;
-  margin: 8px 0 12px;
-  line-height: 1.25;
-}
-
-/* Fila 3: imagen izquierda / barcode derecha */
-.search-carousel__body{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  align-items: start;
-}
-
-.search-carousel__img img{
-  width: 100%;
-  height: 240px;
-  object-fit: contain;
-  border-radius: 16px;
-  background: rgba(255,255,255,.95);
-  padding: 10px;
-  display: block;
-}
-
-.search-carousel__barcode .result-barcode-wrapper{
-  border-radius: 16px;
-  background: #fff;
-  padding: 12px;
-  overflow: hidden;
-}
-
-.search-carousel__barcode .result-barcode{
-  width: 100%;
-  height: 110px;
-}
-
-.search-carousel__barcode .result-ean{
-  margin-top: 10px;
-  text-align: center;
-  color: rgba(243,244,246,.72);
-  font-weight: 900;
-}
-
-/* Mobile: apilado, pero manteniendo flechas izq/der arriba */
-@media (max-width: 720px){
-  .search-carousel__body{
-    grid-template-columns: 1fr;
-  }
-  .search-carousel__img img{
-    height: 260px;
-  }
-}
-
-
-/* 5) Evitar que padding + border empujen el 92vw */
-@media (max-width: 720px){
-  main.container{
-    width: calc(100vw - 24px); /* 12px + 12px */
-    margin-left: 12px;
-    margin-right: 12px;
-  }
-}
-
-/* 6) Evitar que el drawer empuje el viewport en algunos Android */
-.drawer{
-  right: 0;
-  left: auto;
-}
-
-/* 7) Tip común: algún texto largo rompe. Cortamos */
-#fullEan,
-.drawer-value,
-.result-ean{
-  overflow-wrap: anywhere;
-  word-break: break-word;
 }
 
 /* =========================
@@ -954,7 +919,7 @@ img, svg{
     align-items:stretch;
     padding:10px;
     border-radius:16px;
-    background: rgba(11,11,15,.92);
+    background: rgba(10,11,16,.94);
     backdrop-filter: blur(10px);
   }
 
@@ -965,18 +930,27 @@ img, svg{
     border:1px solid rgba(255,255,255,.08);
   }
 
-  /* layout */
-  main.container{ padding: 18px; }
+  /* container: ✅ evita que 92vw + padding genere scroll lateral */
+  main.container{
+    width: calc(100vw - 24px);
+    margin: 18px 12px 22px;
+    padding: 18px;
+  }
+
   .home-hero{ grid-template-columns: 1fr; }
   .home-grid{ grid-template-columns: repeat(2, 1fr); }
 
-  /* results mobile */
   .result-image-wrapper img,
   .no-image{ height: 260px; }
 
   .result-barcode{ height: 120px; }
 
-  .result-header .btn-mini{ white-space: nowrap; }
+  /* Buscar pro: apilado (sin “aire”) */
+  .search-carousel__body{ grid-template-columns: 1fr; }
+  .search-carousel__img img{ height: 260px; }
+
+  /* index ean grande en mobile */
+  #fullEan{ font-size: 1.18rem; letter-spacing: .9px; }
 }
 
 @media (max-width: 600px){
@@ -985,5 +959,5 @@ img, svg{
 
 @media (max-width: 520px){
   .carousel{ grid-template-columns: 44px 1fr 44px; }
-  .carousel-btn{ width: 44px; height: 44px; border-radius: 14px; }
+  .carousel-btn{ width: 44px; height: 44px; border-radius: 14px; min-width:44px; }
 }
