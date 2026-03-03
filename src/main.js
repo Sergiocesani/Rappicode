@@ -1,16 +1,15 @@
 // src/main.js
 import { renderBarcode } from "./barcode.js";
-import { getBarcodeFormat } from "./barcodeFormat.js"; // si no lo tenés, lo saco
-// OJO: si no querés importar getBarcodeFormat acá, comentá esa línea y listo.
+import { getBarcodeFormat } from "./barcodeFormat.js";
 
 let inventoryCache = null;
 let imagesCache = null;
 
-// ---------- Loaders ----------
+// ---------- Loaders (solo 1 vez) ----------
 async function loadInventory() {
   if (inventoryCache) return inventoryCache;
 
-  const res = await fetch("./inventory.json", { cache: "no-store" });
+  const res = await fetch("./inventory.json", { cache: "force-cache" });
   if (!res.ok) throw new Error(`No pude cargar inventory.json (${res.status})`);
   const json = await res.json();
   inventoryCache = Array.isArray(json) ? json : [];
@@ -20,7 +19,7 @@ async function loadInventory() {
 async function loadImages() {
   if (imagesCache) return imagesCache;
 
-  const res = await fetch("./images.json", { cache: "no-store" });
+  const res = await fetch("./images.json", { cache: "force-cache" });
   if (!res.ok) throw new Error(`No pude cargar images.json (${res.status})`);
   const json = await res.json();
   imagesCache = Array.isArray(json) ? json : [];
@@ -33,8 +32,11 @@ function safeText(v) {
 
 // ---------- UI helpers ----------
 function showSingleMode() {
-  document.getElementById("multiResult")?.classList.add("hidden");
-  document.getElementById("multiResult").innerHTML = "";
+  const multi = document.getElementById("multiResult");
+  if (multi) {
+    multi.classList.add("hidden");
+    multi.innerHTML = "";
+  }
   document.getElementById("result")?.classList.remove("hidden");
 }
 
@@ -52,7 +54,8 @@ function hideAllResults() {
   }
 }
 
-async function renderSingleResult(sku) {
+// ---------- Render single ----------
+async function renderSingleResult(sku, images) {
   const skuName = document.getElementById("skuName");
   const fullEan = document.getElementById("fullEan");
   const skuImage = document.getElementById("skuImage");
@@ -61,48 +64,40 @@ async function renderSingleResult(sku) {
   if (fullEan) fullEan.textContent = safeText(sku.ean);
 
   // imagen
-  try {
-    const images = await loadImages();
-    const match = images.find((x) => safeText(x.ean) === safeText(sku.ean));
-    if (skuImage) {
-      if (match?.image) {
-        skuImage.src = match.image;
-        skuImage.style.display = "block";
-      } else {
-        skuImage.removeAttribute("src");
-        skuImage.style.display = "none";
-      }
-    }
-  } catch (e) {
-    console.warn("No se pudo cargar images.json:", e);
-    if (skuImage) {
+  const match = images.find((x) => safeText(x.ean) === safeText(sku.ean));
+  if (skuImage) {
+    if (match?.image) {
+      skuImage.src = match.image;
+      skuImage.style.display = "block";
+    } else {
       skuImage.removeAttribute("src");
       skuImage.style.display = "none";
     }
   }
 
-  // barcode (usa tu renderBarcode que ya decide formato)
+  // barcode (tu helper decide formato)
   renderBarcode(sku.ean);
-
   showSingleMode();
 }
 
+// ---------- Render multi carousel ----------
 function renderMultiResults(matches, images) {
   const multiContainer = document.getElementById("multiResult");
   if (!multiContainer) return;
 
   multiContainer.innerHTML = "";
 
-  // Carousel
   const carousel = document.createElement("div");
   carousel.classList.add("carousel");
 
   const prevBtn = document.createElement("button");
   prevBtn.classList.add("carousel-btn", "carousel-btn-prev");
+  prevBtn.type = "button";
   prevBtn.textContent = "⟨";
 
   const nextBtn = document.createElement("button");
   nextBtn.classList.add("carousel-btn", "carousel-btn-next");
+  nextBtn.type = "button";
   nextBtn.textContent = "⟩";
 
   const trackContainer = document.createElement("div");
@@ -142,15 +137,10 @@ function renderMultiResults(matches, images) {
 
     list.appendChild(li);
 
-    // Barcode para ese item
     const svg = li.querySelector(".result-barcode");
-
     try {
-      // Si tenés barcodeFormat.js, usalo
-      const format = getBarcodeFormat ? getBarcodeFormat(item.ean) : undefined;
-
       JsBarcode(svg, String(item.ean), {
-        format: format || "CODE128",
+        format: getBarcodeFormat(item.ean),
         lineColor: "#000000",
         width: 2.4,
         height: 90,
@@ -176,7 +166,7 @@ function renderMultiResults(matches, images) {
 
   showMultiMode();
 
-  // Lógica
+  // Lógica carousel
   let currentIndex = 0;
   const items = list.querySelectorAll(".result-item");
 
@@ -200,15 +190,18 @@ function renderMultiResults(matches, images) {
   });
 }
 
+// ---------- Main ----------
 document.addEventListener("DOMContentLoaded", async () => {
   const input = document.getElementById("eanInput");
   const button = document.getElementById("generateBtn");
 
-  if (!input || !button) return;
+  if (!input || !button) {
+    console.error("❌ No encuentro #eanInput o #generateBtn");
+    return;
+  }
 
-  // ✅ precarga store (evita lag en la primera búsqueda)
-  let store = null;
-  getStore().then((s) => (store = s)).catch(console.error);
+  // ✅ precarga para que la primera búsqueda sea rápida
+  const [inventory, images] = await Promise.all([loadInventory(), loadImages()]);
 
   async function buscarYMostrar() {
     const digits = input.value.trim();
@@ -224,45 +217,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     button.textContent = "Buscando…";
 
     try {
-      if (!store) store = await getStore();
-
-      // ✅ O(1) con Maps (short + last6)
-      const matches = [...store.findByShort(digits), ...store.findByLast6(digits)];
-
-      // dedupe
-      const uniq = new Map();
-      for (const it of matches) uniq.set(String(it?.ean ?? ""), it);
-      const finalMatches = [...uniq.values()];
-
-      if (!finalMatches.length) {
-        alert("❌ No se encontró ningún producto con esos 6 dígitos.");
-        return;
-      }
-
-      if (finalMatches.length === 1) {
-        await renderSingleResult(finalMatches[0], store);
-      } else {
-        renderMultiResults(finalMatches, store);
-      }
-    } finally {
-      button.disabled = false;
-      button.textContent = oldText;
-    }
-  }
-
-  button.addEventListener("click", buscarYMostrar);
-  input.addEventListener("keydown", (e) => e.key === "Enter" && buscarYMostrar());
-});
-
-    button.disabled = true;
-    const oldText = button.textContent;
-    button.textContent = "Buscando…";
-
-    try {
-      const inventory = await loadInventory();
-      const images = await loadImages();
-
-      // ✅ match por últimos 6 + short
+      // Match por últimos 6 + short
       const matches = inventory.filter((item) => {
         const eanStr = safeText(item.ean);
         const short = safeText(item.short);
@@ -275,20 +230,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       if (matches.length === 1) {
-        await renderSingleResult(matches[0]);
+        await renderSingleResult(matches[0], images);
       } else {
         renderMultiResults(matches, images);
       }
     } catch (e) {
       console.error(e);
-      alert("⚠️ Error cargando inventory/images. Revisá que estén en la misma carpeta y que el server esté corriendo.");
+      alert("⚠️ Error procesando la búsqueda.");
     } finally {
       button.disabled = false;
       button.textContent = oldText;
     }
-  
+  }
 
   button.addEventListener("click", buscarYMostrar);
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") buscarYMostrar();
   });
+});
