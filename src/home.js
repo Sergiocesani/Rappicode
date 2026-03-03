@@ -2,8 +2,6 @@
 import { getStore } from "./dataStore.js";
 import { getBarcodeFormat } from "./barcodeFormat.js";
 
-console.log("✅ home.js cargado");
-
 const $ = (id) => document.getElementById(id);
 
 const els = {
@@ -14,7 +12,6 @@ const els = {
   clear: () => $("homeSearchClear"),
   shuffle: () => $("shuffleBtn"),
   top: () => $("topBtn"),
-  scanBtn: () => $("scanBtn"),
 
   overlay: () => $("drawerOverlay"),
   drawer: () => $("drawer"),
@@ -24,9 +21,6 @@ const els = {
   ean: () => $("drawerEan"),
   copy: () => $("drawerCopy"),
   barcode: () => $("drawerBarcode"),
-
-  scanModal: () => $("scanModal"),
-  scanClose: () => $("scanClose"),
 };
 
 function toast(msg, ms = 1200) {
@@ -80,22 +74,12 @@ function makeCard(item, store) {
 function openDrawer(item, store) {
   const overlay = els.overlay();
   const drawer = els.drawer();
-  const title = els.title();
-  const eanEl = els.ean();
-  const img = els.img();
-  const barcode = els.barcode();
-  const copyBtn = els.copy();
 
-  if (!overlay || !drawer || !title || !eanEl || !img || !barcode || !copyBtn) {
-    console.error("❌ Faltan elementos del drawer en el HTML.");
-    toast("Error: falta drawer en HTML/CSS");
-    return;
-  }
-
-  title.textContent = safeText(item.name) || "Producto";
-  eanEl.textContent = safeText(item.ean);
+  els.title().textContent = safeText(item.name) || "Producto";
+  els.ean().textContent = safeText(item.ean);
 
   const imgSrc = store.getImage(item.ean);
+  const img = els.img();
   if (imgSrc) {
     img.src = imgSrc;
     img.style.display = "block";
@@ -104,9 +88,10 @@ function openDrawer(item, store) {
     img.style.display = "none";
   }
 
-  barcode.innerHTML = "";
+  const svg = els.barcode();
+  svg.innerHTML = "";
   try {
-    JsBarcode(barcode, String(item.ean), {
+    JsBarcode(svg, String(item.ean), {
       format: getBarcodeFormat(item.ean),
       lineColor: "#000000",
       width: 2.2,
@@ -118,7 +103,7 @@ function openDrawer(item, store) {
     console.error("Barcode error:", e);
   }
 
-  copyBtn.onclick = () => copyToClipboard(item.ean);
+  els.copy().onclick = () => copyToClipboard(item.ean);
 
   overlay.classList.remove("hidden");
   drawer.classList.remove("hidden");
@@ -126,27 +111,9 @@ function openDrawer(item, store) {
 }
 
 function closeDrawer() {
-  const overlay = els.overlay();
-  const drawer = els.drawer();
-  if (overlay) overlay.classList.add("hidden");
-  if (drawer) {
-    drawer.classList.add("hidden");
-    drawer.setAttribute("aria-hidden", "true");
-  }
-}
-
-function openScanModal() {
-  const modal = els.scanModal();
-  if (!modal) return;
-  modal.classList.remove("hidden");
-  modal.setAttribute("aria-hidden", "false");
-}
-
-function closeScanModal() {
-  const modal = els.scanModal();
-  if (!modal) return;
-  modal.classList.add("hidden");
-  modal.setAttribute("aria-hidden", "true");
+  els.overlay().classList.add("hidden");
+  els.drawer().classList.add("hidden");
+  els.drawer().setAttribute("aria-hidden", "true");
 }
 
 function pickRandom(items, n) {
@@ -161,8 +128,6 @@ function pickRandom(items, n) {
 function renderGrid(list, store) {
   const grid = els.grid();
   const empty = els.empty();
-  if (!grid || !empty) return;
-
   grid.innerHTML = "";
 
   if (!list.length) {
@@ -179,77 +144,49 @@ function renderGrid(list, store) {
 function buildTop(items, limit = 36) {
   return items
     .filter((x) => x?.ean && x?.name)
-    .sort(
-      (a, b) =>
-        b.name.length + String(b.ean).length - (a.name.length + String(a.ean).length)
-    )
+    .sort((a, b) => (b.name.length + String(b.ean).length) - (a.name.length + String(a.ean).length))
     .slice(0, limit);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   const store = await getStore();
 
+  // ✅ Home: sacar botón "Escanear" si existe en el HTML
+  const scanBtn = document.getElementById("scanBtn");
+  if (scanBtn) scanBtn.remove();
+
   if (els.count()) els.count().textContent = `${store.inventory.length} SKUs`;
   renderGrid(buildTop(store.inventory, 36), store);
 
-  // Drawer events
-  if (els.close()) els.close().addEventListener("click", closeDrawer);
-  if (els.overlay()) els.overlay().addEventListener("click", closeDrawer);
+  els.close().addEventListener("click", closeDrawer);
+  els.overlay().addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (e) => e.key === "Escape" && closeDrawer());
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeDrawer();
-      closeScanModal();
-    }
-  });
+  els.shuffle().addEventListener("click", () => renderGrid(pickRandom(store.inventory, 36), store));
+  els.top().addEventListener("click", () => renderGrid(buildTop(store.inventory, 36), store));
 
-  // Scan modal
-  if (els.scanBtn()) els.scanBtn().addEventListener("click", openScanModal);
-  if (els.scanClose()) els.scanClose().addEventListener("click", closeScanModal);
-
-  // Tools
-  if (els.shuffle()) els.shuffle().addEventListener("click", () => renderGrid(pickRandom(store.inventory, 36), store));
-  if (els.top()) els.top().addEventListener("click", () => renderGrid(buildTop(store.inventory, 36), store));
-
-  // Search
   const input = els.input();
   const clear = els.clear();
-
-  if (!input || !clear) return;
 
   let lastQuery = "";
   function applySearch(q) {
     const term = q.trim();
     if (!term) {
       renderGrid(buildTop(store.inventory, 36), store);
-      if (els.count()) els.count().textContent = `${store.inventory.length} SKUs`;
+      els.count().textContent = `${store.inventory.length} SKUs`;
       return;
     }
 
-    const onlyDigits = /^\d+$/.test(term);
-let results = [];
+    const isDigits = /^\d{6,}$/.test(term);
+    let results = [];
 
-if (onlyDigits) {
-  // EXACTAMENTE 6 => últimos 6 o short (más útil en operación)
-  if (/^\d{6}$/.test(term)) {
-    const m = [...store.findByShort(term), ...store.findByLast6(term)];
-    const uniq = new Map();
-    for (const it of m) uniq.set(String(it?.ean ?? ""), it);
-    results = [...uniq.values()].slice(0, 60);
-  }
-  // 8 o 13 => EAN exacto
-  else if (/^\d{8}$/.test(term) || /^\d{13}$/.test(term)) {
-    results = store.inventory.filter((x) => String(x?.ean ?? "") === term).slice(0, 60);
-  }
-  // otros => includes
-  else {
-    results = store.inventory.filter((x) => String(x?.ean ?? "").includes(term)).slice(0, 60);
-  }
-} else {
-  results = store.searchByName(term, { limit: 60 });
-}
+    if (isDigits) {
+      results = store.inventory.filter((x) => String(x.ean ?? "").includes(term)).slice(0, 60);
+    } else {
+      results = store.searchByName(term, { limit: 60 });
+    }
 
-    if (els.count()) els.count().textContent = `${results.length} resultados`;
+    els.count().textContent = `${results.length} resultados`;
     renderGrid(results, store);
   }
 
@@ -259,7 +196,7 @@ if (onlyDigits) {
     window.clearTimeout(input._t);
     input._t = window.setTimeout(() => {
       if (q === lastQuery) applySearch(q);
-    }, 180);
+    }, 160);
   });
 
   clear.addEventListener("click", () => {
@@ -270,7 +207,7 @@ if (onlyDigits) {
 
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      const first = els.grid()?.querySelector(".p-card");
+      const first = els.grid().querySelector(".p-card");
       if (first) first.click();
     }
   });

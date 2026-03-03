@@ -2,8 +2,6 @@
 import { getBarcodeFormat } from "./barcodeFormat.js";
 import { getStore } from "./dataStore.js";
 
-const $ = (id) => document.getElementById(id);
-
 function toast(msg, ms = 1200) {
   const el = document.createElement("div");
   el.className = "toast";
@@ -25,79 +23,122 @@ function safeText(v) {
   return (v ?? "").toString();
 }
 
-function dedupeByEan(items) {
-  const m = new Map();
-  for (const it of items) {
-    const key = String(it?.ean ?? "").trim();
-    if (key) m.set(key, it);
-  }
-  return [...m.values()];
-}
+function renderResults(results, store) {
+  const container = document.getElementById("searchResults");
+  if (!container) return;
 
-function buildCarouselShell(total) {
-  const container = $("searchResults");
   container.innerHTML = "";
 
-  const wrap = document.createElement("section");
+  if (!results.length) {
+    container.innerHTML = "<p>No se encontraron productos.</p>";
+    return;
+  }
+
+  // ====== WRAPPER CAROUSEL ======
+  const wrap = document.createElement("div");
   wrap.className = "search-carousel";
 
-  wrap.innerHTML = `
-    <div class="search-carousel__head">
-      <div class="search-carousel__title">Resultados</div>
-      <div class="search-carousel__counter" id="scCounter">1 / ${total}</div>
-    </div>
+  // Header con flechas (izq/der) y acciones
+  const head = document.createElement("div");
+  head.className = "search-carousel__head";
 
-    <div class="search-carousel__frame">
-      <button class="carousel-btn" id="scPrev" type="button" aria-label="Anterior">⟨</button>
-      <div class="search-carousel__stage" id="scStage"></div>
-      <button class="carousel-btn" id="scNext" type="button" aria-label="Siguiente">⟩</button>
-    </div>
+  const prevBtn = document.createElement("button");
+  prevBtn.className = "carousel-btn carousel-btn-prev";
+  prevBtn.type = "button";
+  prevBtn.textContent = "⟨";
+
+  const centerActions = document.createElement("div");
+  centerActions.className = "search-carousel__actions";
+  centerActions.innerHTML = `
+    <div class="search-carousel__counter" id="searchCounter">1 / ${results.length}</div>
+    <button class="btn-mini" id="copyBtn" type="button">Copiar EAN</button>
   `;
 
-  container.appendChild(wrap);
-}
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "carousel-btn carousel-btn-next";
+  nextBtn.type = "button";
+  nextBtn.textContent = "⟩";
 
-function renderActiveSlide(item, store) {
-  const stage = $("scStage");
-  if (!stage) return;
+  head.appendChild(prevBtn);
+  head.appendChild(centerActions);
+  head.appendChild(nextBtn);
 
-  const name = safeText(item?.name) || "Sin nombre";
-  const ean = safeText(item?.ean);
-  const imgSrc = store.getImage(ean);
-
+  // Stage (donde se muestra 1 item)
+  const stage = document.createElement("div");
+  stage.className = "search-carousel__stage";
   stage.innerHTML = `
-    <article class="result-item active">
-      <div class="result-header">
-        <p class="result-name"><strong>${name}</strong></p>
-        <button class="btn-mini js-copy" type="button">Copiar EAN</button>
+    <div class="search-carousel__name" id="skuTitle"></div>
+
+    <div class="search-carousel__body">
+      <div class="search-carousel__img">
+        <img id="skuImg" alt="Imagen producto" />
+        <div id="skuNoImg" class="no-image hidden">Sin imagen</div>
       </div>
 
-      <div class="result-main">
-        <div class="result-image-wrapper">
-          ${
-            imgSrc
-              ? `<img src="${imgSrc}" alt="${name}" loading="lazy" />`
-              : `<div class="no-image">Sin imagen</div>`
-          }
-        </div>
-
+      <div class="search-carousel__barcode">
         <div class="result-barcode-wrapper">
-          <svg class="result-barcode" id="scBarcode"></svg>
+          <svg id="skuBarcode" class="result-barcode"></svg>
         </div>
+        <p class="result-ean" id="skuEan"></p>
       </div>
-
-      <p class="result-ean">EAN: <strong>${ean}</strong></p>
-    </article>
+    </div>
   `;
 
-  stage.querySelector(".js-copy")?.addEventListener("click", () => copyToClipboard(ean));
+  wrap.appendChild(head);
+  wrap.appendChild(stage);
+  container.appendChild(wrap);
 
-  // ✅ Barcode SOLO del item activo (esto es lo que acelera todo)
-  const svg = $("scBarcode");
-  if (svg) {
+  // ====== LOGICA ======
+  let currentIndex = 0;
+
+  const counterEl = document.getElementById("searchCounter");
+  const titleEl = document.getElementById("skuTitle");
+  const imgEl = document.getElementById("skuImg");
+  const noImgEl = document.getElementById("skuNoImg");
+  const eanEl = document.getElementById("skuEan");
+  const barcodeEl = document.getElementById("skuBarcode");
+  const copyBtn = document.getElementById("copyBtn");
+
+  function setDisabled() {
+    prevBtn.disabled = currentIndex === 0;
+    nextBtn.disabled = currentIndex === results.length - 1;
+
+    prevBtn.style.opacity = prevBtn.disabled ? 0.35 : 1;
+    nextBtn.style.opacity = nextBtn.disabled ? 0.35 : 1;
+  }
+
+  function renderCurrent() {
+    const item = results[currentIndex];
+
+    // Counter
+    if (counterEl) counterEl.textContent = `${currentIndex + 1} / ${results.length}`;
+
+    // Title
+    if (titleEl) titleEl.textContent = safeText(item.name) || "Sin nombre";
+
+    // EAN
+    const ean = safeText(item.ean);
+    if (eanEl) eanEl.textContent = `EAN: ${ean}`;
+
+    // Copy
+    if (copyBtn) copyBtn.onclick = () => copyToClipboard(ean);
+
+    // Image
+    const imgSrc = store.getImage(item.ean);
+    if (imgSrc) {
+      imgEl.src = imgSrc;
+      imgEl.classList.remove("hidden");
+      noImgEl.classList.add("hidden");
+    } else {
+      imgEl.removeAttribute("src");
+      imgEl.classList.add("hidden");
+      noImgEl.classList.remove("hidden");
+    }
+
+    // Barcode
+    barcodeEl.innerHTML = "";
     try {
-      svg.innerHTML = "";
-      JsBarcode(svg, String(ean), {
+      JsBarcode(barcodeEl, String(ean), {
         format: getBarcodeFormat(ean),
         lineColor: "#000000",
         width: 2.4,
@@ -106,93 +147,71 @@ function renderActiveSlide(item, store) {
         fontSize: 16,
       });
     } catch (err) {
-      console.error("Error barcode:", err);
+      console.error("Error generando barcode para", ean, err);
     }
+
+    setDisabled();
   }
+
+  prevBtn.addEventListener("click", () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      renderCurrent();
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (currentIndex < results.length - 1) {
+      currentIndex++;
+      renderCurrent();
+    }
+  });
+
+  // Primera render
+  renderCurrent();
 }
 
 async function buscar() {
-  const raw = $("searchInput")?.value.trim() || "";
+  const input = document.getElementById("searchInput");
+  const raw = input?.value?.trim() || "";
+
   if (!raw) {
     alert("Escribí algo para buscar.");
     return;
   }
 
-  // UX: loader simple
-  const container = $("searchResults");
-  container.innerHTML = `<div class="home-empty">Buscando…</div>`;
-
   const store = await getStore();
 
-  let results = [];
-
-  // Si son 6 dígitos: short + last6 (rápido por Map)
+  // 6 dígitos => short + last6
   if (/^\d{6}$/.test(raw)) {
-    results = dedupeByEan([...store.findByShort(raw), ...store.findByLast6(raw)]);
-  } else {
-    if (raw.length < 3) {
-      alert("Escribí al menos 3 letras para buscar por nombre.");
-      container.innerHTML = "";
-      return;
-    }
-    // ✅ limit razonable para no cargar de más
-    results = store.searchByName(raw, { limit: 120 });
-  }
+    const byShort = store.findByShort(raw);
+    const byLast6 = store.findByLast6(raw);
 
-  if (!results.length) {
-    container.innerHTML = `<div class="home-empty">No se encontraron productos.</div>`;
+    const map = new Map();
+    for (const it of [...byShort, ...byLast6]) {
+      const key = String(it?.ean ?? "");
+      if (key) map.set(key, it);
+    }
+    renderResults(Array.from(map.values()), store);
     return;
   }
 
-  // ---- Carousel real (1 item visible) ----
-  buildCarouselShell(results.length);
-
-  let idx = 0;
-  const counter = $("scCounter");
-  const prev = $("scPrev");
-  const next = $("scNext");
-
-  function paint() {
-    if (counter) counter.textContent = `${idx + 1} / ${results.length}`;
-    renderActiveSlide(results[idx], store);
-
-    // deshabilitar límites
-    if (prev) prev.disabled = idx === 0;
-    if (next) next.disabled = idx === results.length - 1;
+  // texto => nombre (>=3)
+  if (raw.length < 3) {
+    alert("Escribí al menos 3 letras para buscar por nombre.");
+    return;
   }
 
-  prev?.addEventListener("click", () => {
-    if (idx > 0) {
-      idx--;
-      paint();
-    }
-  });
-
-  next?.addEventListener("click", () => {
-    if (idx < results.length - 1) {
-      idx++;
-      paint();
-    }
-  });
-
-  // teclado
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft" && idx > 0) {
-      idx--;
-      paint();
-    }
-    if (e.key === "ArrowRight" && idx < results.length - 1) {
-      idx++;
-      paint();
-    }
-  });
-
-  paint();
+  const results = store.searchByName(raw, { limit: 120 });
+  renderResults(results, store);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  $("searchBtn")?.addEventListener("click", buscar);
-  $("searchInput")?.addEventListener("keydown", (e) => {
+  const btn = document.getElementById("searchBtn");
+  const input = document.getElementById("searchInput");
+
+  btn?.addEventListener("click", buscar);
+  input?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") buscar();
   });
 });

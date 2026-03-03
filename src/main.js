@@ -114,10 +114,17 @@ function renderMultiResults(matches, images) {
     const matchImage = images.find((img) => safeText(img.ean) === safeText(item.ean));
     const imgSrc = matchImage?.image || "";
 
-    li.innerHTML = `
-      <div class="result-header">
-        <p class="result-name"><strong>${safeText(item.name) || "Sin nombre"}</strong></p>
-      </div>
+li.innerHTML = `
+  <div class="result-header">
+    <div class="result-header-left">
+      <p class="result-name"><strong>${safeText(item.name) || "Sin nombre"}</strong></p>
+    </div>
+
+    <div class="result-header-right">
+      <button class="carousel-btn carousel-btn-next">⟩</button>
+      <button class="btn-mini copy-btn">Copiar EAN</button>
+    </div>
+  </div>
 
       <div class="result-main">
         <div class="result-image-wrapper">
