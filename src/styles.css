@@ -961,3 +961,59 @@ main.container.home{ gap:18px; }
   .carousel{ grid-template-columns: 44px 1fr 44px; }
   .carousel-btn{ width: 44px; height: 44px; border-radius: 14px; min-width:44px; }
 }
+/* =========================
+   MOBILE — Buscar Carousel (nuevo orden)
+   Flechas
+   EAN
+   Barcode
+   Imagen
+   ========================= */
+@media (max-width: 720px){
+
+  /* 1) Head: flecha izq / counter+copiar / flecha der (todo arriba) */
+  .search-carousel__head{
+    grid-template-columns: 44px 1fr 44px;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* 2) Ocultamos el nombre centrado para achicar altura (opcional pero recomendado) */
+  .search-carousel__name{
+    display: none;
+  }
+
+  /* 3) Body pasa a ser 1 columna y en el orden pedido */
+  .search-carousel__body{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* 4) En mobile: EAN debajo de flechas */
+  .search-carousel__barcode .result-ean{
+    order: 1;
+    margin: 0;
+    font-size: 1.12rem;
+    padding: 12px 14px;
+  }
+
+  /* 5) Barcode debajo del EAN */
+  .search-carousel__barcode .result-barcode-wrapper{
+    order: 2;
+    padding: 10px;
+  }
+
+  .search-carousel__barcode .result-barcode{
+    height: 96px; /* más compacto, sin zoom */
+  }
+
+  /* 6) Imagen al final (debajo del barcode) */
+  .search-carousel__img{
+    order: 3;
+  }
+
+  .search-carousel__img img{
+    height: 220px; /* compacta para que entre todo en pantalla */
+    padding: 10px;
+  }
+}
