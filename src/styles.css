@@ -772,6 +772,62 @@ main.container.home{ gap:18px; }
   to{ opacity: 1; transform: translateY(0); }
 }
 
+/* 1) Blindaje general */
+html, body{
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* 2) Todo lo que sea layout no puede exceder viewport */
+main.container,
+.header,
+.nav.nav-open,
+.drawer,
+.modal,
+.drawer-overlay{
+  max-width: 100%;
+}
+
+/* 3) Imágenes / SVG / barcode: nunca más anchos que el contenedor */
+img, svg{
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 4) Barcode (svg) a veces se "pasa" por width interno */
+#barcode,
+.result-barcode,
+#drawerBarcode{
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden;
+}
+
+/* 5) Evitar que padding + border empujen el 92vw */
+@media (max-width: 720px){
+  main.container{
+    width: calc(100vw - 24px); /* 12px + 12px */
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+}
+
+/* 6) Evitar que el drawer empuje el viewport en algunos Android */
+.drawer{
+  right: 0;
+  left: auto;
+}
+
+/* 7) Tip común: algún texto largo rompe. Cortamos */
+#fullEan,
+.drawer-value,
+.result-ean{
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 /* =========================
    Responsive
    ========================= */
