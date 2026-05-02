@@ -1,5 +1,8 @@
 /* =========================
-   TurboScan — styles.css (VERSIÓN FINAL COMPLETA)
+   TurboScan — styles.css (VERSIÓN BALANCEADA)
+   - Ajuste de tamaño normal para imagen y barcode
+   - Sin duplicación de elementos
+   - Optimizado para PC y Mobile
    ========================= */
 
 /* Reset */
@@ -25,6 +28,7 @@ html{
   font-size:16px;
   scroll-behavior:smooth;
   width:100%;
+  max-width:100%;
 }
 
 body{
@@ -37,6 +41,8 @@ body{
   min-height:100vh;
   display:flex;
   flex-direction:column;
+  width:100%;
+  max-width:100%;
   overflow-x:hidden;
 }
 
@@ -48,7 +54,9 @@ img, svg{
   display:block;
 }
 
-/* Header */
+/* =========================
+   Header / Nav
+   ========================= */
 .header{
   position: sticky;
   top:0;
@@ -57,186 +65,209 @@ img, svg{
   align-items:center;
   justify-content:space-between;
   padding:14px 16px;
-  background: rgba(10,11,16,.85);
+  background: rgba(10,11,16,.80);
   backdrop-filter: blur(10px);
   border-bottom:1px solid rgba(255,255,255,.08);
 }
 
-.header-logo{ width:170px; object-fit:contain; }
+.header-logo{
+  width:170px;
+  height:auto;
+  object-fit:contain;
+}
 
-.nav{ display:flex; gap:10px; align-items:center; }
-.nav a{ color:var(--text); text-decoration:none; font-weight:900; padding:8px 12px; }
+.nav{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:8px 10px;
+  border-radius:999px;
+  background: rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+}
+
+.nav a{
+  color:var(--text);
+  text-decoration:none;
+  font-weight:900;
+  font-size:.95rem;
+  padding:8px 12px;
+  border-radius:999px;
+}
 
 .nav-toggle{
   display:none;
   width:42px; height:42px;
+  border-radius:12px;
   border:1px solid rgba(255,255,255,.14);
   background: rgba(255,255,255,.06);
   cursor:pointer;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:5px;
-  border-radius:12px;
 }
 
-.nav-toggle span{ width:20px; height:2px; background:var(--brand); }
-
-/* Main */
+/* =========================
+   Main container
+   ========================= */
 main.container{
   width: min(1100px, 92vw);
-  margin:18px auto;
+  margin:18px auto 22px;
   padding:22px;
   border-radius: var(--radius);
   background: rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.10);
   box-shadow: var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
 }
 
+/* Inputs */
 input{
-  width:100%; padding:14px; border-radius:14px;
+  width:100%;
+  padding:14px;
+  border-radius:14px;
   border:1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,.32); color:var(--text);
-  margin-bottom: 10px;
+  background: rgba(0,0,0,.32);
+  color:var(--text);
+  outline:none;
 }
 
-button{ padding:13px; font-weight:900; border-radius:14px; cursor:pointer; }
-.btn-primary{ background: var(--brand); color:#111; border:none; }
+.btn-primary{
+  background: var(--brand);
+  color:#111;
+  font-weight:900;
+  border-radius:14px;
+}
 
-/* Resultados */
-#skuName{ font-weight: 900; font-size: 1.1rem; margin-bottom: 10px; }
+/* =========================
+   INDEX — Resultado Balanceado
+   ========================= */
+#result{
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
 
-/* Contenedor del Código de Barras CORREGIDO */
+/* ✅ Código de Barras Normal */
 #barcode{
-  margin: 15px auto;
+  margin: 10px auto;
   background: #fff;
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 15px;
   width: 100%;
-  display: flex;         /* Centrado */
+  max-width: 350px; /* Tamaño normalizado */
+  display: flex;
   justify-content: center;
-  align-items: center;
-  overflow: hidden;      /* No permite desbordes */
+  overflow: hidden;
 }
 
-#barcode svg{
-  max-width: 100% !important;
+#barcode svg {
+  width: 100% !important;
   height: auto !important;
 }
 
-#fullEan{
-  padding: 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(34,211,238,.3);
-  background: rgba(34,211,238,.05);
-  font-weight: 900;
-  text-align: center;
-  font-size: 1.2rem;
-  margin: 10px 0;
-}
-
+/* ✅ Imagen Normalizada */
 #skuImage{
   width: 100%;
-  max-width: 300px;
-  margin: 15px auto;
+  max-width: 250px; /* Tamaño equilibrado con el barcode */
+  height: 250px;
+  object-fit: contain;
   display: block;
-  border-radius: 14px;
+  margin: 10px auto;
+  border-radius: 12px;
   background: #fff;
-  padding: 10px;
+  padding: 12px;
 }
 
-/* Carousel Buscar */
-.search-carousel{
-  background: rgba(255,255,255,.05);
-  padding: 15px;
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.1);
-}
-
-.search-carousel__head{
-  display: grid;
-  grid-template-columns: 50px 1fr 50px;
-  align-items: center;
+#fullEan{
+  width: 100%;
+  max-width: 350px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(34,211,238,.08);
+  border: 1px solid rgba(34,211,238,.2);
+  color: var(--text);
+  font-weight: 1000;
   text-align: center;
-  margin-bottom: 15px;
+}
+
+/* =========================
+   CAROUSEL BUSCAR
+   ========================= */
+.search-carousel{
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.10);
 }
 
 .search-carousel__body{
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr; /* Lado a lado en PC */
   gap: 20px;
+  align-items: center;
 }
 
 .search-carousel__img img{
   width: 100%;
-  height: 250px;
+  height: 260px;
   object-fit: contain;
-  background: #fff;
   border-radius: 16px;
-  padding: 10px;
+  background: #fff;
+  padding: 15px;
 }
 
 .result-barcode-wrapper{
   background: #fff;
-  padding: 15px;
   border-radius: 16px;
+  padding: 20px;
   display: flex;
   justify-content: center;
-  align-items: center;
-  overflow: hidden;
 }
 
 .result-barcode{
-  width: auto !important;
-  max-width: 100% !important;
-  height: 100px !important;
+  width: 100% !important;
+  height: 80px !important;
 }
 
-.result-ean{
-  margin-bottom: 10px;
-  padding: 12px;
-  border-radius: 12px;
-  background: rgba(34,211,238,.1);
-  border: 1px solid var(--cyan);
-  text-align: center;
-  font-weight: 1000;
-}
-
-/* Home Grid */
-.home-grid{
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
-}
-
-.p-card{
-  background: rgba(255,255,255,.05);
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.1);
-  overflow: hidden;
-}
-
-.p-card__media{ aspect-ratio: 1/1; background: #fff; padding: 10px; }
-
-/* Responsive */
-@media (max-width: 900px){
-  .home-grid{ grid-template-columns: repeat(3, 1fr); }
-}
-
+/* =========================
+   RESPONSIVE (MOBILE)
+   ========================= */
 @media (max-width: 720px){
   .nav{ display:none; }
   .nav-toggle{ display:flex; }
-  
-  .home-grid{ grid-template-columns: repeat(2, 1fr); }
+
+  main.container{
+    width: calc(100vw - 24px);
+    margin: 15px 12px;
+  }
 
   .search-carousel__body{
-    display: flex;
-    flex-direction: column;
+    grid-template-columns: 1fr; /* Apilado en mobile */
   }
 
   /* ORDEN MOBILE: EAN -> Barcode -> Imagen */
-  .search-carousel__barcode{ order: 1; display: flex; flex-direction: column; }
-  .search-carousel__img{ order: 2; margin-top: 10px; }
+  .search-carousel__barcode{
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-  .result-barcode { height: 90px !important; }
+  .search-carousel__img{
+    order: 2;
+  }
+
+  #skuImage, .search-carousel__img img{
+    height: 220px;
+    max-width: 220px;
+  }
 }

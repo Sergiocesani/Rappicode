@@ -4,21 +4,31 @@ import { getBarcodeFormat } from "./barcodeFormat.js";
 export function renderBarcode(code) {
   const clean = String(code).trim();
   const format = getBarcodeFormat(clean);
+  const barcodeElement = document.querySelector("#barcode");
+
+  if (!barcodeElement) return;
+
+  // Limpiamos el contenido previo para evitar que se duplique
+  barcodeElement.innerHTML = "";
+  
+  // Creamos un elemento SVG nuevo y limpio
+  const newSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  newSvg.id = "barcode-svg";
+  barcodeElement.appendChild(newSvg);
 
   try {
-    JsBarcode("#barcode", clean, {
+    JsBarcode("#barcode-svg", clean, {
       format,
-      lineColor: "rgba(3, 3, 3, 1)",
-      width: 1.7,           // Grosor optimizado para que no se desborde
-      height: 70,          // Altura balanceada
-      displayValue: true,   // Muestra los números abajo
-      fontSize: 15,         // Tamaño de números legible
-      margin: 10,           // Espacio interno
-      background: "#ffffff" // Fondo blanco puro para contraste
+      lineColor: "#000",
+      width: 1.5,           // Grosor estándar profesional
+      height: 60,          // Altura equilibrada
+      displayValue: true,
+      fontSize: 14,
+      margin: 10,
+      background: "#fff"
     });
   } catch (err) {
     console.error("🚫 Error al renderizar:", err);
-    alert("🚫 Este código no se puede generar como código de barras.");
-    document.getElementById("barcode").innerHTML = "";
+    barcodeElement.innerHTML = "<p style='color:red'>Código no soportado</p>";
   }
 }
