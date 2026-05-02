@@ -1,9 +1,8 @@
 /* =========================
-   TurboScan — styles.css (LIMPIO + PRO)
-   - sin reglas duplicadas
-   - sin scroll lateral en mobile
-   - EAN ultra legible (pill + contraste)
-   - index / buscar (carousel) / home / drawer
+   TurboScan — styles.css (CORREGIDO)
+   - Barcode compacto y centrado
+   - Sin scroll lateral
+   - Optimizado para Mobile
    ========================= */
 
 /* Reset */
@@ -48,8 +47,6 @@ body{
   min-height:100vh;
   display:flex;
   flex-direction:column;
-
-  /* ✅ evita scroll lateral */
   width:100%;
   max-width:100%;
   overflow-x:hidden;
@@ -57,12 +54,13 @@ body{
 
 .hidden{ display:none !important; }
 
-/* ✅ blindaje general anti “desborde” */
+/* Blindaje general anti desborde */
 img, svg{
   max-width:100%;
   height:auto;
   display:block;
 }
+
 main.container,
 .header,
 .nav.nav-open,
@@ -95,7 +93,6 @@ main.container,
   filter: drop-shadow(0 6px 14px rgba(0,0,0,.35));
 }
 
-/* Desktop nav */
 .nav{
   display:flex;
   gap:10px;
@@ -122,7 +119,6 @@ main.container,
   color: var(--brand);
 }
 
-/* Hamburger */
 .nav-toggle{
   display:none;
   width:42px;
@@ -166,9 +162,7 @@ main.container{
   gap:14px;
 }
 
-/* =========================
-   Inputs
-   ========================= */
+/* Inputs */
 input{
   width:100%;
   padding:14px 14px;
@@ -186,9 +180,7 @@ input:focus{
   box-shadow: 0 0 0 4px rgba(34,211,238,.12);
 }
 
-/* =========================
-   Buttons
-   ========================= */
+/* Buttons */
 button{
   padding:13px 14px;
   font-size:1.05rem;
@@ -242,9 +234,7 @@ button{
   color: rgba(255,140,0,1);
 }
 
-/* =========================
-   Footer
-   ========================= */
+/* Footer */
 footer{
   margin-top:auto;
   text-align:center;
@@ -252,9 +242,7 @@ footer{
   color: rgba(243,244,246,.55);
 }
 
-/* =========================
-   Toast
-   ========================= */
+/* Toast */
 .toast{
   position: fixed;
   left: 50%;
@@ -271,7 +259,7 @@ footer{
 }
 
 /* =========================
-   INDEX — Resultado simple
+   INDEX — Resultado
    ========================= */
 #result{
   margin-top: 10px;
@@ -287,7 +275,6 @@ footer{
   margin-bottom: 8px;
 }
 
-/* ✅ EAN PRO (legible para cámara) */
 #fullEan{
   margin-top: 10px;
   padding: 12px 14px;
@@ -305,13 +292,22 @@ footer{
   box-shadow: 0 10px 28px rgba(34,211,238,.10);
 }
 
+/* BARCODE CORREGIDO */
 #barcode{
   margin: 12px auto 0;
   background: #fff;
   border-radius: 14px;
-  padding: 10px;
+  padding: 12px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
+}
+
+#barcode svg {
+  max-width: 100%;
+  height: auto !important; /* Deja que JsBarcode controle el alto */
 }
 
 #skuImage{
@@ -326,15 +322,9 @@ footer{
   background: rgba(255,255,255,.92);
   padding: 10px;
 }
-@media (min-width: 900px){
-  #skuImage{ max-width: 300px; max-height: 200px; }
-}
-@media (max-width: 480px){
-  #skuImage{ max-height: 180px; padding: 8px; }
-}
 
 /* =========================
-   CAROUSEL (multiResult + buscar.html clásico)
+   CAROUSEL
    ========================= */
 .carousel{
   display: grid;
@@ -357,14 +347,7 @@ footer{
   font-size: 1.6rem;
   display: grid;
   place-items: center;
-
-  /* ✅ nunca empuja el viewport */
   min-width: 52px;
-}
-.carousel-btn:hover{
-  border-color: rgba(34,211,238,.35);
-  background: rgba(34,211,238,.10);
-  color: var(--cyan);
 }
 
 .carousel-counter{
@@ -403,48 +386,21 @@ footer{
   line-height: 1.25;
 }
 
-.result-main{
-  display: grid;
-  grid-template-columns: 1fr; /* default apilado */
-  gap: 14px;
-  align-items: stretch;
-}
-
-.result-image-wrapper img{
-  width: 100%;
-  height: 220px;
-  object-fit: contain;
-  border-radius: 16px;
-  background: rgba(255,255,255,.95);
-  padding: 10px;
-}
-
-.no-image{
-  width: 100%;
-  height: 220px;
-  border-radius: 16px;
-  background: rgba(255,255,255,.06);
-  border: 1px dashed rgba(255,255,255,.18);
-  display: grid;
-  place-items: center;
-  color: rgba(243,244,246,.65);
-  font-size: .85rem;
-  text-align: center;
-  padding: 8px;
-}
-
+/* RESULT BARCODE WRAPPER CORREGIDO */
 .result-barcode-wrapper{
   background: #fff;
   border-radius: 16px;
   padding: 12px;
   width: 100%;
+  display: flex;
+  justify-content: center;
   overflow: hidden;
 }
 
 .result-barcode{
-  width: 100% !important;
-  height: 110px;
+  width: auto !important;
   max-width: 100% !important;
+  height: 100px !important;
 }
 
 .result-ean{
@@ -458,12 +414,10 @@ footer{
   letter-spacing: .5px;
   font-size: 1rem;
   text-align: center;
-  overflow-wrap:anywhere;
 }
 
 /* =========================
-   Buscar.html — layout PRO (flechas arriba, nombre, imagen|barcode)
-   Requiere que tu JS cree estas clases: search-carousel__*
+   SEARCH CAROUSEL PRO
    ========================= */
 .search-carousel{
   width: 100%;
@@ -472,7 +426,7 @@ footer{
   border-radius: 16px;
   background: rgba(255,255,255,.05);
   border: 1px solid rgba(255,255,255,.10);
-  overflow:hidden; /* ✅ evita scroll lateral por cualquier cosa interna */
+  overflow:hidden;
 }
 
 .search-carousel__head{
@@ -483,29 +437,6 @@ footer{
   margin-bottom: 10px;
 }
 
-.search-carousel__actions{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  min-width: 0;
-}
-
-.search-carousel__counter{
-  color: rgba(243,244,246,.70);
-  font-weight: 1000;
-  white-space: nowrap;
-}
-
-.search-carousel__name{
-  font-weight: 1000;
-  color: var(--text);
-  text-align: center;
-  margin: 8px 0 12px;
-  line-height: 1.25;
-}
-
-/* ✅ 2 columnas en desktop */
 .search-carousel__body{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -513,7 +444,6 @@ footer{
   align-items: start;
 }
 
-/* Imagen */
 .search-carousel__img img{
   width: 100%;
   height: 240px;
@@ -523,147 +453,27 @@ footer{
   padding: 10px;
 }
 
-/* Barcode + EAN */
-.search-carousel__barcode .result-barcode-wrapper{
-  border-radius: 16px;
-  background: #fff;
-  padding: 12px;
-  overflow: hidden;
-}
-
-/* ✅ EAN más “hermoso” y MUY legible */
 .search-carousel__barcode .result-ean{
   margin: 10px 0 0;
   padding: 12px 14px;
   border-radius: 14px;
   border: 1px solid rgba(34,211,238,.25);
-  background:
-    linear-gradient(180deg, rgba(34,211,238,.12), rgba(124,58,237,.10)),
-    rgba(255,255,255,.04);
-  color: rgba(243,244,246,.96);
+  background: linear-gradient(180deg, rgba(34,211,238,.12), rgba(124,58,237,.10));
+  color: #fff;
   font-weight: 1100;
-  letter-spacing: .8px;
   font-size: 1.10rem;
   text-align: center;
-  box-shadow: 0 12px 30px rgba(34,211,238,.10);
 }
 
 /* =========================
-   HOME
+   HOME GRID
    ========================= */
-main.container.home{ gap:18px; }
-
-.home-hero{
-  display:grid;
-  grid-template-columns: 1.3fr .7fr;
-  gap:16px;
-}
-
-.home-title{
-  margin:0;
-  font-size:2rem;
-  letter-spacing:1px;
-  color: var(--brand);
-  text-transform:uppercase;
-}
-
-.home-subtitle{
-  margin-top:6px;
-  color: rgba(243,244,246,.72);
-  font-weight:800;
-}
-
-.home-actions{
-  margin-top:12px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
-
-.home-search{
-  margin-top:12px;
-  display:grid;
-  grid-template-columns: 1fr auto;
-  gap:10px;
-}
-
-.home-meta{
-  margin-top:10px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.home-pill{
-  padding:8px 10px;
-  border-radius:999px;
-  background: rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.10);
-  color: var(--text);
-  font-weight:1000;
-  font-size:.9rem;
-}
-
-.home-pill--muted{
-  color: rgba(243,244,246,.6);
-  font-weight:900;
-}
-
-.home-card{
-  height:100%;
-  border-radius: var(--radius);
-  background: rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.10);
-  padding:14px;
-}
-
-.home-card__title{
-  font-weight: 1000;
-  color: var(--brand);
-  margin-bottom:8px;
-}
-
-.home-card__text{
-  color: rgba(243,244,246,.7);
-  line-height:1.6;
-  font-weight:800;
-}
-
-.home-grid-wrap{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.home-grid-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-
-.home-grid-title{
-  font-size:1.1rem;
-  font-weight:1000;
-}
-
 .home-grid{
   display:grid;
   grid-template-columns: repeat(6, 1fr);
-  gap:12px;
+  gap: 12px;
 }
 
-.home-empty{
-  margin-top:10px;
-  padding:14px;
-  border-radius:14px;
-  background: rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.10);
-  color: rgba(243,244,246,.75);
-  font-weight:900;
-}
-
-/* Product card */
 .p-card{
   position:relative;
   text-align:left;
@@ -676,24 +486,6 @@ main.container.home{ gap:18px; }
   transition: all 220ms ease;
 }
 
-.p-card::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:16px;
-  background: radial-gradient(circle at center, rgba(34,211,238,.14), transparent 70%);
-  opacity:0;
-  transition: opacity 220ms ease;
-  pointer-events:none;
-}
-
-.p-card:hover{
-  transform: translateY(-6px);
-  border-color: rgba(34,211,238,.45);
-  box-shadow: 0 12px 30px rgba(34,211,238,.16);
-}
-.p-card:hover::after{ opacity:1; }
-
 .p-card__media{
   aspect-ratio: 1 / 1;
   background: rgba(255,255,255,.92);
@@ -701,7 +493,6 @@ main.container.home{ gap:18px; }
   align-items:center;
   justify-content:center;
   padding:12px;
-  overflow:hidden;
   border-bottom:1px solid rgba(0,0,0,.06);
 }
 
@@ -709,311 +500,52 @@ main.container.home{ gap:18px; }
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding:10px;
-  transition: transform 220ms ease;
 }
 
-.p-card:hover .p-card__media img{ transform: scale(1.08); }
-
-.p-card__noimg{ color: rgba(0,0,0,.55); font-weight: 900; }
-
-.p-card__body{
-  padding: 10px 10px 12px;
-  display:grid;
-  gap:6px;
-}
-
-.p-card__name{
-  font-weight:1000;
-  color: var(--text);
-  font-size:.95rem;
-  line-height:1.2;
-  height:2.4em;
-  overflow:hidden;
-}
-.p-card:hover .p-card__name{ color: var(--cyan); }
-
-.p-card__ean{
-  color: rgba(243,244,246,.62);
-  font-weight:900;
-  font-size:.9rem;
-}
+.p-card__body{ padding: 10px; }
+.p-card__name{ font-weight:1000; font-size:.9rem; height:2.4em; overflow:hidden; }
 
 /* =========================
-   Drawer (Home)
+   RESPONSIVE MOBILE
    ========================= */
-.drawer-overlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.55);
-  z-index: 9998;
-}
-
-.drawer{
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: auto;
-  height: 100vh;
-  width: min(420px, 92vw);
-  z-index: 9999;
-  background: rgba(10,11,16,.96);
-  border-left: 1px solid rgba(255,255,255,.10);
-  box-shadow: 0 20px 60px rgba(0,0,0,.55);
-  padding: 14px;
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-}
-
-.drawer-head{
-  flex: 0 0 auto;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: rgba(10,11,16,.97);
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255,255,255,.10);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-
-.drawer-title{
-  font-weight: 1000;
-  color: var(--brand);
-  font-size: 1.05rem;
-}
-
-.drawer-body{
-  flex: 1 1 auto;
-  overflow-y: auto;
-  padding-right: 6px;
-  display:grid;
-  gap:12px;
-}
-.drawer-body::-webkit-scrollbar{ width:10px; }
-.drawer-body::-webkit-scrollbar-thumb{
-  background: rgba(255,255,255,.14);
-  border-radius: 999px;
-}
-.drawer-body::-webkit-scrollbar-thumb:hover{
-  background: rgba(34,211,238,.22);
-}
-
-.drawer-media{
-  border-radius: 16px;
-  background: rgba(255,255,255,.92);
-  padding: 10px;
-}
-
-.drawer-media img{
-  width: 100%;
-  max-height: 240px;
-  object-fit: contain;
-  border-radius: 12px;
-}
-
-.drawer-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:10px;
-  border-radius:14px;
-  background: rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.10);
-}
-
-.drawer-label{ color: rgba(243,244,246,.65); font-weight: 1000; }
-.drawer-value{
-  color: var(--text);
-  font-weight: 1000;
-  overflow-wrap:anywhere;
-  text-align:right;
-}
-
-.drawer-actions{ display:flex; gap:10px; }
-
-.drawer-barcode{
-  border-radius: 16px;
-  background: #fff;
-  padding: 10px;
-  overflow:hidden;
-}
-
-/* =========================
-   Modal
-   ========================= */
-.modal{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.55);
-  z-index: 10000;
-  display:grid;
-  place-items:center;
-  padding:16px;
-}
-
-.modal-card{
-  width: min(560px, 96vw);
-  border-radius: 18px;
-  background: rgba(10,11,16,.97);
-  border: 1px solid rgba(255,255,255,.12);
-  box-shadow: 0 20px 60px rgba(0,0,0,.55);
-  padding: 14px;
-  display:grid;
-  gap:12px;
-}
-
-.modal-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-}
-
-.modal-title{ font-weight: 1000; color: var(--brand); }
-
-.modal-text{
-  color: rgba(243,244,246,.82);
-  font-weight: 850;
-  line-height: 1.6;
-}
-.modal-text--muted{ color: rgba(243,244,246,.55); }
-
-.modal-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
-
-/* =========================
-   Anim
-   ========================= */
-@keyframes fadeInUp{
-  from{ opacity: 0; transform: translateY(6px); }
-  to{ opacity: 1; transform: translateY(0); }
-}
-
-/* =========================
-   Responsive
-   ========================= */
-@media (max-width: 980px){
-  .home-grid{ grid-template-columns: repeat(4, 1fr); }
-}
-
 @media (max-width: 720px){
-  /* nav */
   .nav{ display:none; }
   .nav-toggle{ display:flex; }
 
   .nav.nav-open{
     display:flex;
     position:absolute;
-    top:64px;
-    left:12px;
-    right:12px;
+    top:64px; left:12px; right:12px;
     flex-direction:column;
-    align-items:stretch;
-    padding:10px;
-    border-radius:16px;
     background: rgba(10,11,16,.94);
     backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 10px;
+    z-index: 100;
   }
 
-  .nav a{
-    padding:12px;
-    border-radius:14px;
-    background: rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.08);
-  }
-
-  /* container: ✅ evita que 92vw + padding genere scroll lateral */
   main.container{
     width: calc(100vw - 24px);
-    margin: 18px 12px 22px;
-    padding: 18px;
+    margin: 18px 12px;
+    padding: 16px;
   }
 
-  .home-hero{ grid-template-columns: 1fr; }
   .home-grid{ grid-template-columns: repeat(2, 1fr); }
 
-  .result-image-wrapper img,
-  .no-image{ height: 260px; }
-
-  .result-barcode{ height: 120px; }
-
-  /* Buscar pro: apilado (sin “aire”) */
   .search-carousel__body{ grid-template-columns: 1fr; }
-  .search-carousel__img img{ height: 260px; }
 
-  /* index ean grande en mobile */
-  #fullEan{ font-size: 1.18rem; letter-spacing: .9px; }
+  /* Re-ordenar para que barcode este arriba de la imagen */
+  .search-carousel__barcode{ order: 1; }
+  .search-carousel__img{ order: 2; }
+  
+  .result-barcode {
+    height: 85px !important;
+  }
+
+  #fullEan { font-size: 1.1rem; }
 }
 
-@media (max-width: 600px){
-  .drawer-media img{ max-height: 200px; }
-}
-
-@media (max-width: 520px){
-  .carousel{ grid-template-columns: 44px 1fr 44px; }
-  .carousel-btn{ width: 44px; height: 44px; border-radius: 14px; min-width:44px; }
-}
-/* =========================
-   MOBILE — Buscar Carousel (nuevo orden)
-   Flechas
-   EAN
-   Barcode
-   Imagen
-   ========================= */
-@media (max-width: 720px){
-
-  /* 1) Head: flecha izq / counter+copiar / flecha der (todo arriba) */
-  .search-carousel__head{
-    grid-template-columns: 44px 1fr 44px;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  /* 2) Ocultamos el nombre centrado para achicar altura (opcional pero recomendado) */
-  .search-carousel__name{
-    display: none;
-  }
-
-  /* 3) Body pasa a ser 1 columna y en el orden pedido */
-  .search-carousel__body{
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  /* 4) En mobile: EAN debajo de flechas */
-  .search-carousel__barcode .result-ean{
-    order: 1;
-    margin: 0;
-    font-size: 1.12rem;
-    padding: 12px 14px;
-  }
-
-  /* 5) Barcode debajo del EAN */
-  .search-carousel__barcode .result-barcode-wrapper{
-    order: 2;
-    padding: 10px;
-  }
-
-  .search-carousel__barcode .result-barcode{
-    height: 96px; /* más compacto, sin zoom */
-  }
-
-  /* 6) Imagen al final (debajo del barcode) */
-  .search-carousel__img{
-    order: 3;
-  }
-
-  .search-carousel__img img{
-    height: 220px; /* compacta para que entre todo en pantalla */
-    padding: 10px;
-  }
+@keyframes fadeInUp{
+  from{ opacity: 0; transform: translateY(6px); }
+  to{ opacity: 1; transform: translateY(0); }
 }
